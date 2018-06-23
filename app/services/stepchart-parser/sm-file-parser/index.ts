@@ -5,9 +5,10 @@ import {
     NoteData,
     NoteMeasureData,
     StopSegment,
-} from '../../../models/stepchart';
+    StepChart,
+    NotesSegment
+} from '../../../models';
 import { split } from '../../../helpers';
-import { StepChart, NotesSegment } from '../../../models';
 import { StepChartParser } from "../index";
 
 export class SmFileStepChartParser implements StepChartParser {
