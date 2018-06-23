@@ -22,8 +22,7 @@ export class SmFileStepChartParser implements StepChartParser {
         const header = this.parseHeaderSegment(segments[0]);
 
         // Build the notes segments (all the following segments should be notes segments)
-        const notesSegments = segments.slice(1)
-            .map(segment => this.parseNotesSegment(segment));
+        const notesSegments = this.parseNotesSegments(segments.slice(1));
 
         // Build the stepchart!
         return {
