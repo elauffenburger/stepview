@@ -1,6 +1,13 @@
-import { BgChangeSegment, BpmSegment, HeaderSegment, StopSegment } from '../../../models/stepchart';
+import {
+    BgChangeSegment,
+    BpmSegment,
+    HeaderSegment,
+    NoteData,
+    NoteMeasureData,
+    StopSegment,
+} from '../../../models/stepchart';
 import { split } from '../../../helpers';
-import { StepChart } from '../../../models';
+import { StepChart, NotesSegment } from '../../../models';
 import { StepChartParser } from "../index";
 
 export class SmFileStepChartParser implements StepChartParser {
@@ -14,12 +21,14 @@ export class SmFileStepChartParser implements StepChartParser {
         // Get header info from header segment
         const header = this.parseHeaderSegment(segments[0]);
 
-        // TODO: Build the notes segment
-        // ...
+        // Build the notes segments (all the following segments should be notes segments)
+        const notesSegments = segments.slice(1)
+            .map(segment => this.parseNotesSegment(segment));
 
         // Build the stepchart!
         return {
-            header: header
+            header: header,
+            notes: notesSegments
         }
     }
 
@@ -197,5 +206,112 @@ export class SmFileStepChartParser implements StepChartParser {
             // feature receiving the value
             return [left, right];
         });
+    }
+
+    parseNotesSegments(segments: string[][]): NotesSegment[] {
+        // We need to sanitize the segments ahead of time to ensure we
+        // don't try to parse zero-length "segments"
+        return segments.map(segment => this.sanitizeNotesSegmentLines(segment))
+            .filter(segment => segment.length)
+            .map(segment => this.parseNotesSegment(segment));
+    }
+
+    parseNotesSegment(lines: string[]): NotesSegment {
+        if (!lines || !lines.length) {
+            // TODO: error
+        }
+
+        // Sanitize the segment
+        const sanitizedLines = this.sanitizeNotesSegmentLines(lines);
+
+        // Parse the first line to ensure this is actually a notes segment
+        const { tag } = this.parseHeaderLine(sanitizedLines[0]);
+        if (tag != 'NOTES') {
+            // TODO: error
+        }
+
+        // Get the header data out of the textual data
+        const headerData = sanitizedLines.slice(1, 6)
+            .reduce((acc, line, i) => {
+                const { value } = this.parseNotesSegmentHeaderLine(line);
+
+                switch (i) {
+                    case 0:
+                        acc.type = <any>value.toLowerCase();
+                        break;
+                    case 1:
+                        acc.description = value;
+                        break;
+                    case 2:
+                        acc.difficultyClass = <any>value.toLowerCase();
+                        break;
+                    case 3:
+                        acc.difficultyMeter = parseInt(value);
+                        break;
+                    case 4:
+                        const values = value.split(',');
+
+                        acc.radarValues = {
+                            voltage: parseFloat(values[0]),
+                            stream: parseFloat(values[1]),
+                            chaos: parseFloat(values[2]),
+                            freeze: parseFloat(values[3]),
+                            air: parseFloat(values[4])
+                        };
+
+                        break;
+                }
+
+                return acc;
+            }, <NotesSegment>{});
+
+        const measures = split(sanitizedLines.slice(6), line => line == ',');
+
+        let beatNum = 0;
+        const notes = measures.map((measure, measureNum) => {
+            return <NoteMeasureData>{
+                measure: measureNum,
+                data: measure.reduce((acc, line) => {
+                    // If this is the end of a measure, ignore the line
+                    if (line == ';') {
+                        return acc;
+                    }
+
+                    const data = <NoteData>{
+                        beat: beatNum++,
+                        data: line
+                    };
+
+                    acc.push(data);
+
+                    return acc;
+                }, <NoteData[]>[])
+            };
+        });
+
+        return {
+            ...headerData,
+            noteData: notes
+        };
+    }
+
+    private sanitizeNotesSegmentLines(lines: string[]) {
+        return lines
+            .map(this.stripCommentsFromLine)
+            .map(line => line.trim())
+            .filter(line => line != '');
+    }
+
+    parseNotesSegmentHeaderLine(line: string): { value: string } {
+        if (!line) {
+            return { value: '' };
+        }
+
+        const parts = line.split(':');
+        if (!parts.length) {
+            return { value: '' };
+        }
+
+        return { value: parts[0] };
     }
 }
