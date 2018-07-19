@@ -28,3 +28,15 @@ export function split<T>(collection: T[], chunkFn: (item: T) => boolean): T[][] 
 
     return rec(collection, 0, [], []);
 }
+
+// Source: https://stackoverflow.com/questions/4652468/is-there-a-javascript-function-that-reduces-a-fraction
+export function computeGcd(a: number, b: number): number {
+    return b ? computeGcd(b, a % b) : a;
+}
+
+// Source: https://stackoverflow.com/questions/4652468/is-there-a-javascript-function-that-reduces-a-fraction
+export function reduceFraction(numerator: number, denominator: number): { numerator: number; denominator: number } {
+    const gcd = computeGcd(numerator, denominator);
+
+    return { numerator: numerator / gcd, denominator: denominator / gcd };
+}

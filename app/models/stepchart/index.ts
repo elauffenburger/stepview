@@ -1,3 +1,5 @@
+export const BEATS_PER_MEASURE = 4;
+
 export interface StepChart {
     header: HeaderSegment
     notes: NotesSegment[]
@@ -26,12 +28,25 @@ export interface NotesSegment {
 
 export interface NoteMeasureData {
     measure: number;
-    data: NoteData[];
+    notes: NoteData[];
 }
 
 export interface NoteData {
     beat: number;
+    type: NoteType;
     data: string;
+}
+
+export enum NoteType {
+    QUARTER = 1/4,
+    EIGHTH = 1/8,
+    TWELFTH = 1/12,
+    SIXTEENTH = 1/16,
+    TWENTY_FOURTH = 1/24,
+    THIRTY_SECOND = 1/32,
+    FOURTY_EIGHTH = 1/48,
+    SIXTY_FOURTH = 1/64,
+    ONE_NINETY_SECOND = 1/192
 }
 
 export interface RadarValues {

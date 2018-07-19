@@ -6,10 +6,14 @@ import {
     NoteMeasureData,
     StopSegment,
     StepChart,
-    NotesSegment
+    NotesSegment,
+    BEATS_PER_MEASURE,
+    NoteType
 } from '../../../models';
-import { split } from '../../../helpers';
+import { split, reduceFraction } from '../../../helpers';
 import { StepChartParser } from "../index";
+
+import * as _ from 'lodash';
 
 export class SmFileStepChartParser implements StepChartParser {
     parse(file: string): StepChart {
@@ -265,26 +269,38 @@ export class SmFileStepChartParser implements StepChartParser {
                 return acc;
             }, <NotesSegment>{});
 
+        // All measure line groups:
+        // ex: 1001\n1001,\n1001,\n -> [['1001', '1001'], ['1001']]
         const measures = split(sanitizedLines.slice(6), line => line == ',');
 
         let beatNum = 0;
-        const notes = measures.map((measure, measureNum) => {
+        const notes = measures.map((measureNotes, measureNum) => {
+            const sanitizedMeasureNotes = measureNotes
+                .filter(line => {
+                    // If this is the end of a measure, ignore the line
+                    return line != ';';
+                });
+
+            const numNotesInMeasure = sanitizedMeasureNotes.length;
+
+            // We want to know how many beats each note takes for beat num and note type calculations
+            const beatsPerNote = BEATS_PER_MEASURE / sanitizedMeasureNotes.length;
+
             return <NoteMeasureData>{
                 measure: measureNum,
-                data: measure.reduce((acc, line) => {
-                    // If this is the end of a measure, ignore the line
-                    if (line == ';') {
-                        return acc;
-                    }
-
-                    const data = <NoteData>{
-                        beat: beatNum++,
-                        data: line
+                notes: sanitizedMeasureNotes.reduce((notes, line, noteNum) => {
+                    const note = <NoteData>{
+                        beat: beatNum,
+                        data: line,
+                        type: this.getNoteType(noteNum, numNotesInMeasure)
                     };
 
-                    acc.push(data);
+                    // We need to calculate the beat the NEXT note will be on
+                    beatNum += beatsPerNote;
 
-                    return acc;
+                    notes.push(note);
+
+                    return notes;
                 }, <NoteData[]>[])
             };
         });
@@ -293,6 +309,16 @@ export class SmFileStepChartParser implements StepChartParser {
             ...headerData,
             noteData: notes
         };
+    }
+
+    private getNoteType(noteNum: number, numNotesInMeasure: number): NoteType {
+        const percentageOfMeasure = noteNum / numNotesInMeasure;
+
+        // Find the first type of note for which percentageOfMeasure % type == 0
+        const type = _.find(Object.keys(NoteType), t => percentageOfMeasure % <number><any>t == 0);
+
+        // Parse the type as a number if we found it or default to 192nd notes
+        return (type && parseFloat(type)) || NoteType.ONE_NINETY_SECOND;
     }
 
     private sanitizeNotesSegmentLines(lines: string[]) {

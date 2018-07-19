@@ -1,4 +1,4 @@
-import { HeaderSegment, StepChart } from '../../../../app/models/stepchart';
+import { HeaderSegment, StepChart, NoteType } from '../../../../app/models/stepchart';
 import { SmFileStepChartParser } from "../../../../app/services/stepchart-parser";
 import { NotesSegment } from '../../../../app/models';
 
@@ -96,101 +96,121 @@ function makeFixture(): StepChart {
             noteData: [
                 {
                     measure: 0,
-                    data: [
+                    notes: [
                         {
                             beat: 0,
-                            data: '0000'
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                         {
                             beat: 1,
-                            data: '0000'
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                         {
                             beat: 2,
-                            data: '0000'
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                         {
                             beat: 3,
-                            data: '0000'
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                     ]
                 },
                 {
                     measure: 1,
-                    data: [
+                    notes: [
                         {
                             beat: 4,
-                            data: '0000'
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                         {
                             beat: 5,
-                            data: '0000'
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                         {
                             beat: 6,
-                            data: '0000'
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                         {
                             beat: 7,
-                            data: '0000'
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                     ]
                 },
                 {
                     measure: 2,
-                    data: [
+                    notes: [
                         {
                             beat: 8,
-                            data: '0001'
+                            data: '0001',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 8.5,
+                            data: '0100',
+                            type: NoteType.EIGHTH
                         },
                         {
                             beat: 9,
-                            data: '0100'
+                            data: '0001',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 9.5,
+                            data: '0000',
+                            type: NoteType.EIGHTH
                         },
                         {
                             beat: 10,
-                            data: '0001'
+                            data: '1000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 10.5,
+                            data: '0000',
+                            type: NoteType.EIGHTH
                         },
                         {
                             beat: 11,
-                            data: '0000'
+                            data: '1100',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 12,
-                            data: '1000'
-                        },
-                        {
-                            beat: 13,
-                            data: '0000'
-                        },
-                        {
-                            beat: 14,
-                            data: '1100'
-                        },
-                        {
-                            beat: 15,
-                            data: '0000'
+                            beat: 11.5,
+                            data: '0000',
+                            type: NoteType.EIGHTH
                         }
                     ]
                 },
                 {
                     measure: 3,
-                    data: [
+                    notes: [
                         {
-                            beat: 16,
-                            data: '2002'
+                            beat: 12,
+                            data: '2002',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 17,
-                            data: '3003'
+                            beat: 13,
+                            data: '3003',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 18,
-                            data: '0000'
+                            beat: 14,
+                            data: '0000',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 19,
-                            data: '0000'
+                            beat: 15,
+                            data: '0000',
+                            type: NoteType.QUARTER
                         }
                     ]
                 }
@@ -211,27 +231,51 @@ function makeFixture(): StepChart {
             noteData: [
                 {
                     measure: 0,
-                    data: [
+                    notes: [
                         {
                             beat: 0,
-                            data: '00000000'
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                         {
                             beat: 1,
-                            data: '00000000'
+                            data: '00000000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 2,
+                            data: '00000000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 3,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                     ]
                 },
                 {
                     measure: 1,
-                    data: [
+                    notes: [
                         {
-                            beat: 2,
-                            data: '00000000'
+                            beat: 4,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 3,
-                            data: '00000000'
+                            beat: 5,
+                            data: '00000000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 6,
+                            data: '00000000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 7,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                     ]
                 }
@@ -252,48 +296,76 @@ function makeFixture(): StepChart {
             noteData: [
                 {
                     measure: 0,
-                    data: [
+                    notes: [
                         {
                             beat: 0,
-                            data: '00000000'
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                         {
                             beat: 1,
-                            data: '00000000'
+                            data: '00000000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 2,
+                            data: '00000000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 3,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         }
                     ]
                 },
                 {
                     measure: 1,
-                    data: [
+                    notes: [
                         {
-                            beat: 2,
-                            data: '00000000'
+                            beat: 4,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 3,
-                            data: '00000000'
+                            beat: 5,
+                            data: '00000000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 6,
+                            data: '00000000',
+                            type: NoteType.QUARTER
+                        },
+                        {
+                            beat: 7,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         }
                     ]
                 },
                 {
                     measure: 2,
-                    data: [
+                    notes: [
                         {
-                            beat: 4,
-                            data: '00000000'
+                            beat: 8,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 5,
-                            data: '00000000'
+                            beat: 9,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 6,
-                            data: '00000000'
+                            beat: 10,
+                            data: '00000000',
+                            type: NoteType.QUARTER
                         },
                         {
-                            beat: 7,
-                            data: '10000001'
+                            beat: 11,
+                            data: '10000001',
+                            type: NoteType.QUARTER
                         }
                     ]
                 }
