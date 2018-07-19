@@ -2,13 +2,15 @@ import {
     BgChangeSegment,
     BpmSegment,
     HeaderSegment,
-    NoteData,
+    Note,
     NoteMeasureData,
     StopSegment,
     StepChart,
     NotesSegment,
     BEATS_PER_MEASURE,
-    NoteType
+    NoteType,
+    NoteData,
+    ArrowType
 } from '../../../models';
 import { split, reduceFraction } from '../../../helpers';
 import { StepChartParser } from "../index";
@@ -31,8 +33,8 @@ export class SmFileStepChartParser implements StepChartParser {
 
         // Build the stepchart!
         return {
-            header: header,
-            notes: notesSegments
+            headerSegment: header,
+            noteSegments: notesSegments
         }
     }
 
@@ -289,10 +291,20 @@ export class SmFileStepChartParser implements StepChartParser {
             return <NoteMeasureData>{
                 measure: measureNum,
                 notes: sanitizedMeasureNotes.reduce((notes, line, noteNum) => {
-                    const note = <NoteData>{
+                    const noteData: NoteData = {
+                        arrows: {
+                            left: this.getArrowTypeAt(0, line),
+                            down: this.getArrowTypeAt(1, line),
+                            up: this.getArrowTypeAt(2, line),
+                            right: this.getArrowTypeAt(3, line)
+                        }
+                    };
+
+                    const note: Note = {
                         beat: beatNum,
-                        data: line,
-                        type: this.getNoteType(noteNum, numNotesInMeasure)
+                        rawData: line,
+                        type: this.getNoteType(noteNum, numNotesInMeasure),
+                        data: noteData
                     };
 
                     // We need to calculate the beat the NEXT note will be on
@@ -301,13 +313,13 @@ export class SmFileStepChartParser implements StepChartParser {
                     notes.push(note);
 
                     return notes;
-                }, <NoteData[]>[])
+                }, <Note[]>[])
             };
         });
 
         return {
             ...headerData,
-            noteData: notes
+            measures: notes
         };
     }
 
@@ -339,5 +351,15 @@ export class SmFileStepChartParser implements StepChartParser {
         }
 
         return { value: parts[0] };
+    }
+
+    private getArrowTypeAt(position: number, rawData: string): ArrowType {
+        const typeCode = rawData[position];
+
+        const asNumber = parseInt(typeCode);
+
+        return asNumber != NaN
+            ? <ArrowType>asNumber
+            : <ArrowType>typeCode;
     }
 }

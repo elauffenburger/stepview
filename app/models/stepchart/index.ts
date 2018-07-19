@@ -1,8 +1,8 @@
 export const BEATS_PER_MEASURE = 4;
 
 export interface StepChart {
-    header: HeaderSegment
-    notes: NotesSegment[]
+    headerSegment: HeaderSegment
+    noteSegments: NotesSegment[]
 }
 
 export interface NotesSegment {
@@ -23,30 +23,53 @@ export interface NotesSegment {
     difficultyMeter: number;
     radarValues: RadarValues
 
-    noteData: NoteMeasureData[];
+    measures: NoteMeasureData[];
 }
 
 export interface NoteMeasureData {
     measure: number;
-    notes: NoteData[];
+    notes: Note[];
+}
+
+export interface Note {
+    beat: number;
+    type: NoteType;
+    rawData: string;
+    data: NoteData;
 }
 
 export interface NoteData {
-    beat: number;
-    type: NoteType;
-    data: string;
+    arrows: {
+        left: ArrowType;
+        down: ArrowType;
+        up: ArrowType;
+        right: ArrowType;
+        left2?: ArrowType;
+        down2?: ArrowType;
+        up2?: ArrowType;
+        right2?: ArrowType;
+    }
+}
+
+export enum ArrowType {
+    None = 0,
+    Normal = 1,
+    HoldHead = 2,
+    HoldRollTail = 3,
+    RollHead = 4,
+    Mine = 'M'
 }
 
 export enum NoteType {
-    QUARTER = 1/4,
-    EIGHTH = 1/8,
-    TWELFTH = 1/12,
-    SIXTEENTH = 1/16,
-    TWENTY_FOURTH = 1/24,
-    THIRTY_SECOND = 1/32,
-    FOURTY_EIGHTH = 1/48,
-    SIXTY_FOURTH = 1/64,
-    ONE_NINETY_SECOND = 1/192
+    QUARTER = 1 / 4,
+    EIGHTH = 1 / 8,
+    TWELFTH = 1 / 12,
+    SIXTEENTH = 1 / 16,
+    TWENTY_FOURTH = 1 / 24,
+    THIRTY_SECOND = 1 / 32,
+    FOURTY_EIGHTH = 1 / 48,
+    SIXTY_FOURTH = 1 / 64,
+    ONE_NINETY_SECOND = 1 / 192
 }
 
 export interface RadarValues {

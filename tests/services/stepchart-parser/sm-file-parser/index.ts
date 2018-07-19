@@ -1,4 +1,4 @@
-import { HeaderSegment, StepChart, NoteType } from '../../../../app/models/stepchart';
+import { HeaderSegment, StepChart, NoteType, ArrowType } from '../../../../app/models/stepchart';
 import { SmFileStepChartParser } from "../../../../app/services/stepchart-parser";
 import { NotesSegment } from '../../../../app/models';
 
@@ -27,7 +27,7 @@ describe('can parse the header', () => {
     it('can parse header segment', () => {
         const headerSegment = parser.parseHeaderSegment(headerSegmentLines);
 
-        expect(headerSegment).toEqual(fixture.header);
+        expect(headerSegment).toEqual(fixture.headerSegment);
     });
 });
 
@@ -35,7 +35,7 @@ it('can parse data segments', () => {
     // The notes segments are the segments other than the first
     const notesSegments = parser.parseNotesSegments(segments.slice(1));
 
-    expect(notesSegments).toEqual(fixture.notes);
+    expect(notesSegments).toEqual(fixture.noteSegments);
 });
 
 it('can parse the whole file', () => {
@@ -46,7 +46,7 @@ it('can parse the whole file', () => {
 
 function makeFixture(): StepChart {
     return <StepChart>{
-        header: {
+        headerSegment: {
             title: 'Break Free',
             subtitle: '',
             artist: 'Ariana Grande feat. Zedd',
@@ -81,7 +81,7 @@ function makeFixture(): StepChart {
                 }
             ]
         },
-        notes: [{
+        noteSegments: [{
             type: 'dance-single',
             description: '',
             difficultyClass: 'hard',
@@ -93,28 +93,60 @@ function makeFixture(): StepChart {
                 freeze: 0.275000,
                 air: 0.045833
             },
-            noteData: [
+            measures: [
                 {
                     measure: 0,
                     notes: [
                         {
                             beat: 0,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 1,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 2,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 3,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                     ]
@@ -124,22 +156,54 @@ function makeFixture(): StepChart {
                     notes: [
                         {
                             beat: 4,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 5,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 6,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 7,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                     ]
@@ -149,42 +213,106 @@ function makeFixture(): StepChart {
                     notes: [
                         {
                             beat: 8,
-                            data: '0001',
+                            rawData: '0001',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.Normal,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 8.5,
-                            data: '0100',
+                            rawData: '0100',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.Normal,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.EIGHTH
                         },
                         {
                             beat: 9,
-                            data: '0001',
+                            rawData: '0001',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.Normal,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 9.5,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.EIGHTH
                         },
                         {
                             beat: 10,
-                            data: '1000',
+                            rawData: '1000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.Normal,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 10.5,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.EIGHTH
                         },
                         {
                             beat: 11,
-                            data: '1100',
+                            rawData: '1100',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.Normal,
+                                    down: ArrowType.Normal,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 11.5,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.EIGHTH
                         }
                     ]
@@ -194,22 +322,54 @@ function makeFixture(): StepChart {
                     notes: [
                         {
                             beat: 12,
-                            data: '2002',
+                            rawData: '2002',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.HoldHead,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.HoldHead,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 13,
-                            data: '3003',
+                            rawData: '3003',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.HoldRollTail,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.HoldRollTail,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 14,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 15,
-                            data: '0000',
+                            rawData: '0000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         }
                     ]
@@ -228,28 +388,60 @@ function makeFixture(): StepChart {
                 freeze: 0.100000,
                 air: 0.025000
             },
-            noteData: [
+            measures: [
                 {
                     measure: 0,
                     notes: [
                         {
                             beat: 0,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 1,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 2,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 3,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                     ]
@@ -259,22 +451,54 @@ function makeFixture(): StepChart {
                     notes: [
                         {
                             beat: 4,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 5,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 6,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 7,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                     ]
@@ -293,28 +517,60 @@ function makeFixture(): StepChart {
                 freeze: 0.191667,
                 air: 0.045833
             },
-            noteData: [
+            measures: [
                 {
                     measure: 0,
                     notes: [
                         {
                             beat: 0,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 1,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 2,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 3,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         }
                     ]
@@ -324,22 +580,54 @@ function makeFixture(): StepChart {
                     notes: [
                         {
                             beat: 4,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 5,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 6,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 7,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         }
                     ]
@@ -349,22 +637,54 @@ function makeFixture(): StepChart {
                     notes: [
                         {
                             beat: 8,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 9,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 10,
-                            data: '00000000',
+                            rawData: '00000000',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.None,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         },
                         {
                             beat: 11,
-                            data: '10000001',
+                            rawData: '10000001',
+                            data: {
+                                arrows: {
+                                    left: ArrowType.Normal,
+                                    down: ArrowType.None,
+                                    up: ArrowType.None,
+                                    right: ArrowType.None,
+                                }
+                            },
                             type: NoteType.QUARTER
                         }
                     ]
