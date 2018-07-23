@@ -10,7 +10,8 @@ import {
     BEATS_PER_MEASURE,
     NoteType,
     NoteData,
-    ArrowType
+    ArrowType,
+    ArrowDirection
 } from '../../../models';
 import { split, reduceFraction } from '../../../helpers';
 import { StepChartParser } from "../index";
@@ -293,10 +294,10 @@ export class SmFileStepChartParser implements StepChartParser {
                 notes: sanitizedMeasureNotes.reduce((notes, line, noteNum) => {
                     const noteData: NoteData = {
                         arrows: {
-                            left: this.getArrowTypeAt(0, line),
-                            down: this.getArrowTypeAt(1, line),
-                            up: this.getArrowTypeAt(2, line),
-                            right: this.getArrowTypeAt(3, line)
+                            left: { direction: ArrowDirection.Left, type: this.getArrowTypeAt(0, line) },
+                            down: { direction: ArrowDirection.Down, type: this.getArrowTypeAt(1, line) },
+                            up: { direction: ArrowDirection.Up, type: this.getArrowTypeAt(2, line) },
+                            right: { direction: ArrowDirection.Right, type: this.getArrowTypeAt(3, line) },
                         }
                     };
 
@@ -356,10 +357,21 @@ export class SmFileStepChartParser implements StepChartParser {
     private getArrowTypeAt(position: number, rawData: string): ArrowType {
         const typeCode = rawData[position];
 
-        const asNumber = parseInt(typeCode);
+        switch(typeCode) {
+            case '0':
+                return ArrowType.None;
+            case '1':
+                return ArrowType.Normal;
+            case '2':
+                return ArrowType.HoldHead;
+            case '3':
+                return ArrowType.HoldRollTail;
+            case '4':
+                return ArrowType.RollHead;
+            case 'M':
+                return ArrowType.Mine;
+        }
 
-        return asNumber != NaN
-            ? <ArrowType>asNumber
-            : <ArrowType>typeCode;
+        return ArrowType.Unknown;
     }
 }

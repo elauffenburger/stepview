@@ -1,5 +1,8 @@
 export const BEATS_PER_MEASURE = 4;
 
+// Since 48 * 4 = 196, we can safely subdivide a measure by 48 lines
+export const LINES_PER_MEASURE = 48;
+
 export interface StepChart {
     headerSegment: HeaderSegment
     noteSegments: NotesSegment[]
@@ -31,7 +34,7 @@ export interface NoteMeasureData {
     notes: Note[];
 }
 
-export interface Note {
+export type Note = {
     beat: number;
     type: NoteType;
     rawData: string;
@@ -39,28 +42,45 @@ export interface Note {
 }
 
 export interface NoteData {
-    arrows: {
-        left: ArrowType;
-        down: ArrowType;
-        up: ArrowType;
-        right: ArrowType;
-        left2?: ArrowType;
-        down2?: ArrowType;
-        up2?: ArrowType;
-        right2?: ArrowType;
-    }
+    arrows: NoteDataArrows
+}
+
+export interface NoteDataArrows {
+    left: Arrow;
+    down: Arrow;
+    up: Arrow;
+    right: Arrow;
+    left2?: Arrow;
+    down2?: Arrow;
+    up2?: Arrow;
+    right2?: Arrow;
+}
+
+export interface Arrow {
+    direction: ArrowDirection;
+    type: ArrowType;
+}
+
+export enum ArrowDirection {
+    Left,
+    Down,
+    Up,
+    Right
 }
 
 export enum ArrowType {
-    None = 0,
-    Normal = 1,
-    HoldHead = 2,
-    HoldRollTail = 3,
-    RollHead = 4,
-    Mine = 'M'
+    Unknown,
+    None,
+    Normal,
+    HoldHead,
+    Hold,
+    HoldRollTail,
+    RollHead,
+    Mine,
 }
 
 export enum NoteType {
+    UNKNOWN = 0,
     QUARTER = 1 / 4,
     EIGHTH = 1 / 8,
     TWELFTH = 1 / 12,
@@ -141,4 +161,22 @@ export interface StopSegment {
 
     // The duration, in seconds, to stop for
     duration: number;
+}
+
+export function makeEmptyNote(): Note {
+    return {
+        beat: 0,
+        rawData: '',
+        type: NoteType.UNKNOWN,
+        data: { arrows: makeEmptyArrows() }
+    }
+}
+
+export function makeEmptyArrows(): NoteDataArrows {
+    return {
+        left: { type: ArrowType.None, direction: ArrowDirection.Left },
+        down: { type: ArrowType.None, direction: ArrowDirection.Down },
+        up: { type: ArrowType.None, direction: ArrowDirection.Up },
+        right: { type: ArrowType.None, direction: ArrowDirection.Right },
+    };
 }
