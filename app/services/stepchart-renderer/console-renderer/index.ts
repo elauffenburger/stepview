@@ -1,7 +1,7 @@
-import { StepChartRenderer, AbstractStepChartRenderer } from "..";
-import { StepChart, LINES_PER_MEASURE, Note, ArrowType, NoteMeasureData, Arrow, ArrowDirection, NoteDataArrows, makeEmptyNote, NotesSegment } from "../../../models";
+import { StepChart, Note, ArrowType, Arrow, ArrowDirection } from '../../../models';
+import { AbstractStepChartRenderer } from '../abstract-renderer';
 
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
     constructor(private printFn: (msg: string) => void) { super(); }
@@ -14,16 +14,8 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
             return;
         }
 
-        const noteArrowAccessors: ((arrows: NoteDataArrows) => Arrow)[] = [
-            arrows => arrows.left,
-            arrows => arrows.down,
-            arrows => arrows.up,
-            arrows => arrows.right,
-        ];
-
-        const normalizedMeasures = this.normalizeMeasuresInNoteSegment(noteSegment, noteArrowAccessors);
-
-        normalizedMeasures.forEach((measure, measureNum) => {
+        const measures = noteSegment.measures;
+        measures.forEach((measure, measureNum) => {
             measure.notes.forEach((note, noteNum) => {
                 const noteString = this.printNote(note);
                 const noteInfo = _.padEnd(`(${measureNum}, ${noteNum}):`, 10);

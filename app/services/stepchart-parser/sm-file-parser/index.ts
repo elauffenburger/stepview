@@ -13,13 +13,13 @@ import {
     ArrowType,
     ArrowDirection
 } from '../../../models';
-import { split, reduceFraction } from '../../../helpers';
-import { StepChartParser } from "../index";
+import { split } from '../../../helpers';
 
-import * as _ from 'lodash';
+import _ from 'lodash';
+import { AbstractStepChartParser } from '../abstract-parser';
 
-export class SmFileStepChartParser implements StepChartParser {
-    parse(file: string): StepChart {
+export class SmFileStepChartParser extends AbstractStepChartParser {
+    protected doParse(file: string): StepChart {
         // Group lines by segment
         const segments = this.splitFileIntoSegments(file);
 

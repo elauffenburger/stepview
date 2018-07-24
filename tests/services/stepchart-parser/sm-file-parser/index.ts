@@ -6,7 +6,7 @@ const path = require('path');
 
 const file = fs.readFileSync(path.resolve(__dirname, './files/Break Free.sm'), 'utf8');
 
-const parser = new SmFileStepChartParser();
+const parser = new SmFileStepChartParser({ normalizeChart: false });
 const segments = parser.splitFileIntoSegments(file);
 
 export const CHART_FIXTURE: StepChart = makeFixture();
