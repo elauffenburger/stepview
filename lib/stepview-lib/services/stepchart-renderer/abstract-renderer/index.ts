@@ -6,4 +6,13 @@ export abstract class AbstractStepChartRenderer implements StepChartRenderer {
 
     protected abstract printNote(note: Note): string;
     protected abstract printArrow(arrow: Arrow): string;
+
+    protected calculateNoteRenderDelay(lastBeatDelta: number, bpm: number): number {
+        if (lastBeatDelta == 0) {
+            return 0;
+        }
+
+        const beatsPerMs = bpm / 60000;
+        return lastBeatDelta / beatsPerMs;
+    }
 }

@@ -70,9 +70,7 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
             return Promise.resolve();
         }
 
-        const waitTime = beatInfo.lastBeatDelta == 0
-            ? 0
-            : 1 / ((beatInfo.bpm / 60000) / beatInfo.lastBeatDelta);
+        const waitTime = this.calculateNoteRenderDelay(beatInfo.lastBeatDelta, beatInfo.bpm);
 
         return new Promise<void>((res, rej) => {
             this.args.waitThenFn(waitTime, () => {
