@@ -1,6 +1,7 @@
 import { Arrow, NoteDataArrows, StepChart, NotesSegment, LINES_PER_MEASURE, makeEmptyNote, ArrowType, Note, NoteMeasureData, NoteType, BEATS_PER_MEASURE } from "../../../models";
 import { StepChartParser } from "..";
 import _ from "lodash";
+import { clampPrecision } from "../../../helpers";
 
 export type NoteArrowAccessor = (arrows: NoteDataArrows) => Arrow;
 
@@ -55,7 +56,7 @@ export abstract class AbstractStepChartParser implements StepChartParser {
 
                         const fillerNote: Note = {
                             ...makeEmptyNote(),
-                            beat: noteNum * 4 * NoteType.FORTY_EIGHTH
+                            beat: clampPrecision(noteNum * 4 * NoteType.FORTY_EIGHTH)
                         };
 
                         let fillerNoteArrows = fillerNote.data.arrows;

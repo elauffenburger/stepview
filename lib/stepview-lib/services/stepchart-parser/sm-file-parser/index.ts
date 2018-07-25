@@ -13,7 +13,7 @@ import {
     ArrowType,
     ArrowDirection
 } from '../../../models';
-import { split } from '../../../helpers';
+import { split, clampPrecision } from '../../../helpers';
 
 import _ from 'lodash';
 import { AbstractStepChartParser } from '../abstract-parser';
@@ -287,7 +287,7 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
             const numNotesInMeasure = sanitizedMeasureNotes.length;
 
             // We want to know how many beats each note takes for beat num and note type calculations
-            const beatsPerNote = BEATS_PER_MEASURE / sanitizedMeasureNotes.length;
+            const beatsPerNote = clampPrecision(BEATS_PER_MEASURE / sanitizedMeasureNotes.length);
 
             return <NoteMeasureData>{
                 measure: measureNum,

@@ -1,11 +1,11 @@
-import { StepChart, Arrow, Note } from "../../../models";
-import { StepChartRenderer } from "..";
+import { StepChart, Arrow, Note, NoteType } from "../../../models";
+import { StepChartRenderer, StepChartRenderArgs } from "..";
 
 export abstract class AbstractStepChartRenderer implements StepChartRenderer {
-    abstract render(chart: StepChart): Promise<void>;
+    abstract render(chart: StepChart, renderArgs: StepChartRenderArgs): Promise<void>;
 
     protected abstract printNote(note: Note): string;
-    protected abstract printArrow(arrow: Arrow): string;
+    protected abstract printArrow(arrow: Arrow, noteType: NoteType): string;
 
     protected calculateNoteRenderDelay(lastBeatDelta: number, bpm: number): number {
         if (lastBeatDelta == 0) {

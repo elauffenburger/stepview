@@ -1,8 +1,12 @@
-import { StepChart, Note, ArrowType, Arrow, ArrowDirection } from '../../../models';
+import { StepChart, Note, ArrowType, Arrow, ArrowDirection, NoteType } from '../../../models';
 import { AbstractStepChartRenderer } from '../abstract-renderer';
 
 import _ from 'lodash';
 import { toBpmChangesLookup } from '../../../helpers';
+
+import 'chalk';
+import chalk from 'chalk';
+import { StepChartRenderArgs } from '..';
 
 interface Args {
     printFn: (msg: string) => void;
@@ -16,7 +20,9 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
         super();
     }
 
-    async render(chart: StepChart): Promise<void> {
+    async render(chart: StepChart, renderArgs: StepChartRenderArgs): Promise<void> {
+        renderArgs.bpmMultiplier = renderArgs.bpmMultiplier || 1;
+
         // We're just getting the first dance-single segment
         const noteSegment = _.find(chart.noteSegments, s => s.type == 'dance-single');
         if (!noteSegment) {
@@ -52,7 +58,7 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
                 // See if we're changing bpm
                 const maybeBpmChange = bpmChangesLookup[note.beat];
                 if (maybeBpmChange) {
-                    bpm = maybeBpmChange;
+                    bpm = maybeBpmChange * renderArgs.bpmMultiplier;
 
                     this.args.printFn(`---Changing BPM: ${bpm}---`);
                 }
@@ -82,10 +88,10 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
 
     protected printNote(note: Note): string {
         const arrows = note.data.arrows;
-        return `${this.printArrow(arrows.left)}  ${this.printArrow(arrows.up)}  ${this.printArrow(arrows.down)}  ${this.printArrow(arrows.right)}`;
+        return `${this.printArrow(arrows.left, note.type)}  ${this.printArrow(arrows.up, note.type)}  ${this.printArrow(arrows.down, note.type)}  ${this.printArrow(arrows.right, note.type)}`;
     }
 
-    protected printArrow(arrow: Arrow): string {
+    protected printArrow(arrow: Arrow, noteType: NoteType): string {
         // print arrow types that look the same no matter the direction
         switch (arrow.type) {
             case ArrowType.HoldRollTail:
@@ -93,38 +99,67 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
                 return '|'
         }
 
-        switch (arrow.direction) {
-            case ArrowDirection.Left:
-                switch (arrow.type) {
-                    case ArrowType.Normal:
-                        return '<';
-                    case ArrowType.HoldHead:
-                        return '<'
-                }
-            case ArrowDirection.Down:
-                switch (arrow.type) {
-                    case ArrowType.Normal:
-                        return 'v';
-                    case ArrowType.HoldHead:
-                        return 'V'
-                }
-            case ArrowDirection.Up:
-                switch (arrow.type) {
-                    case ArrowType.Normal:
-                        return '^';
-                    case ArrowType.HoldHead:
-                        return 'A'
-                }
-            case ArrowDirection.Right:
-                switch (arrow.type) {
-                    case ArrowType.Normal:
-                        return '>';
-                    case ArrowType.HoldHead:
-                        return '>'
-                }
+        const arrowCharacter = (() => {
+            switch (arrow.direction) {
+                case ArrowDirection.Left:
+                    switch (arrow.type) {
+                        case ArrowType.Normal:
+                            return '<';
+                        case ArrowType.HoldHead:
+                            return '<'
+                    }
+                case ArrowDirection.Down:
+                    switch (arrow.type) {
+                        case ArrowType.Normal:
+                            return 'v';
+                        case ArrowType.HoldHead:
+                            return 'V'
+                    }
+                case ArrowDirection.Up:
+                    switch (arrow.type) {
+                        case ArrowType.Normal:
+                            return '^';
+                        case ArrowType.HoldHead:
+                            return 'A'
+                    }
+                case ArrowDirection.Right:
+                    switch (arrow.type) {
+                        case ArrowType.Normal:
+                            return '>';
+                        case ArrowType.HoldHead:
+                            return '>'
+                    }
+            }
+        })();
+
+        if (!arrowCharacter) {
+            return '.';
         }
 
-        return '.';
+        const renderFunction = (() => {
+            switch (noteType) {
+                case NoteType.QUARTER:
+                    return chalk.red;
+                case NoteType.EIGHTH:
+                    return chalk.blue;
+                case NoteType.TWELFTH:
+                    return chalk.hex('#8a2be2');
+                case NoteType.SIXTEENTH:
+                    return chalk.yellow;
+                case NoteType.TWENTY_FOURTH:
+                    return chalk.hex('#ff69b4');
+                case NoteType.THIRTY_SECOND:
+                    return chalk.hex('#ffa500');
+                case NoteType.FORTY_EIGHTH:
+                    return chalk.blueBright;
+                case NoteType.SIXTY_FOURTH:
+                    return chalk.green;
+                default:
+                    return chalk.gray;
+            }
+        })();
+
+        return renderFunction(arrowCharacter);
     }
 
     protected isHold(arrow: Arrow): boolean {
