@@ -2,6 +2,7 @@ import { StepChart, Note, ArrowType, Arrow, ArrowDirection } from '../../../mode
 import { AbstractStepChartRenderer } from '../abstract-renderer';
 
 import _ from 'lodash';
+import { toBpmChangesLookup } from '../../../helpers';
 
 interface Args {
     printFn: (msg: string) => void;
@@ -29,16 +30,13 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
             return;
         }
 
-        const bpmChanges = bpmSegments.reduce<{ [beat: number]: number }>((acc, bpmSegment) => {
-            acc[bpmSegment.beat] = bpmSegment.bpm;
-            return acc;
-        }, {});
-
-        const measures = noteSegment.measures;
+        // A lookup we can use to see when bpm changes should occur
+        const bpmChangesLookup = toBpmChangesLookup(bpmSegments);
 
         let lastNote: Note | undefined;
         let bpm = 0;
 
+        const measures = noteSegment.measures;
         for (let measureNum in measures) {
             const measure = measures[measureNum];
 
@@ -52,7 +50,7 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
                 const beatDelta = lastNote ? note.beat - lastNote.beat : note.beat;
 
                 // See if we're changing bpm
-                const maybeBpmChange = bpmChanges[note.beat];
+                const maybeBpmChange = bpmChangesLookup[note.beat];
                 if (maybeBpmChange) {
                     bpm = maybeBpmChange;
 
@@ -67,8 +65,13 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
     }
 
     private async printNoteToBeat(msg: string, beatInfo: { lastBeatDelta: number; bpm: number }): Promise<void> {
-        const waitTime = beatInfo.lastBeatDelta == 0 
-            ? 0 
+        if (!this.args.realtime) {
+            this.args.printFn(msg);
+            return Promise.resolve();
+        }
+
+        const waitTime = beatInfo.lastBeatDelta == 0
+            ? 0
             : 1 / ((beatInfo.bpm / 60000) / beatInfo.lastBeatDelta);
 
         return new Promise<void>((res, rej) => {

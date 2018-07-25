@@ -1,5 +1,5 @@
-import { ConsoleStepChartRenderer } from "../../../app/services/stepchart-renderer/console-renderer";
-import { SmFileStepChartParser } from "../../../app/services/stepchart-parser";
+import { ConsoleStepChartRenderer } from "lib/stepview-lib/services/stepchart-renderer/console-renderer";
+import { SmFileStepChartParser } from "lib/stepview-lib/services/stepchart-parser";
 
 const fs = require('fs');
 const path = require('path');
@@ -7,7 +7,7 @@ const path = require('path');
 const parser = new SmFileStepChartParser({ normalizeChart: true });
 const renderer = new ConsoleStepChartRenderer({
     realtime: false,
-    printFn: msg => process.stdout.write(msg + '\n'),
+    printFn: msg => { },
     waitThenFn: (waitTime, then) => setTimeout(() => then(), waitTime)
 });
 

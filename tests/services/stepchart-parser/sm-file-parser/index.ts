@@ -1,5 +1,5 @@
-import { StepChart, NoteType, ArrowType, ArrowDirection, makeEmptyArrows } from '../../../../app/models/stepchart';
-import { SmFileStepChartParser } from "../../../../app/services/stepchart-parser";
+import { StepChart, NoteType, ArrowType, ArrowDirection, makeEmptyArrows } from 'lib/stepview-lib/models/stepchart';
+import { SmFileStepChartParser } from "lib/stepview-lib/services/stepchart-parser";
 
 const fs = require('fs');
 const path = require('path');
