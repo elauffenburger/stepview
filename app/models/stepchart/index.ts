@@ -87,7 +87,7 @@ export enum NoteType {
     SIXTEENTH = 1 / 16,
     TWENTY_FOURTH = 1 / 24,
     THIRTY_SECOND = 1 / 32,
-    FOURTY_EIGHTH = 1 / 48,
+    FORTY_EIGHTH = 1 / 48,
     SIXTY_FOURTH = 1 / 64,
     ONE_NINETY_SECOND = 1 / 192
 }

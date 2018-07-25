@@ -1,5 +1,5 @@
 import { StepChart, Arrow, Note, NoteDataArrows } from "../../models";
 
 export interface StepChartRenderer {
-    render(chart: StepChart): void;
+    render(chart: StepChart): Promise<void>;
 }

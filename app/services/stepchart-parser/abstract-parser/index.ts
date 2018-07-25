@@ -1,4 +1,4 @@
-import { Arrow, NoteDataArrows, StepChart, NotesSegment, LINES_PER_MEASURE, makeEmptyNote, ArrowType, Note, NoteMeasureData } from "../../../models";
+import { Arrow, NoteDataArrows, StepChart, NotesSegment, LINES_PER_MEASURE, makeEmptyNote, ArrowType, Note, NoteMeasureData, NoteType, BEATS_PER_MEASURE } from "../../../models";
 import { StepChartParser } from "..";
 import _ from "lodash";
 
@@ -34,15 +34,17 @@ export abstract class AbstractStepChartParser implements StepChartParser {
     }
 
     protected normalizeMeasuresInNoteSegment(noteSegment: NotesSegment, noteArrowAccessors: NoteArrowAccessor[]) {
+        let noteNum = 0;
         return noteSegment.measures
             .reduce((measures, measure) => {
                 const numNotes = measure.notes.length;
-                const linesToSkipPerNote = LINES_PER_MEASURE / numNotes;
+                const linesToSkipPerNote = LINES_PER_MEASURE / numNotes - 1;
 
                 const notes = measure.notes.reduce((acc, note) => {
                     const noteArrows = note.data.arrows;
 
                     acc.push(note);
+                    noteNum++
 
                     // We need to map our "explicitly defined lines" space to the "total lines per beat" space
                     // e.g. map 4 lines -> 48 notes
@@ -51,7 +53,11 @@ export abstract class AbstractStepChartParser implements StepChartParser {
                             break;
                         }
 
-                        const fillerNote = makeEmptyNote();
+                        const fillerNote: Note = {
+                            ...makeEmptyNote(),
+                            beat: noteNum * 4 * NoteType.FORTY_EIGHTH
+                        };
+
                         let fillerNoteArrows = fillerNote.data.arrows;
 
                         // Use our note accessors to perform transforms on our filler notes
@@ -71,6 +77,7 @@ export abstract class AbstractStepChartParser implements StepChartParser {
                         }
 
                         acc.push(fillerNote);
+                        noteNum++;
                     }
 
                     return acc;
