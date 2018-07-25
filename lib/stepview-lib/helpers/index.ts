@@ -1,16 +1,12 @@
 export * from './stepchart';
 
 export function split<T>(collection: T[], chunkFn: (item: T) => boolean): T[][] {
-    let i = 0;
-    let results: T[][] = [];
-    let chunk: T[] = [];
-
-    while (true) {
+    function rec(collection: T[], i: number, results: T[][], chunk: T[]): () => T[][] {
         // If we're at the end of the line, add the current chunk and return results
         if (i >= collection.length) {
             results.push(chunk);
 
-            return results;
+            return () => results;
         }
 
         // Get the current item
@@ -22,17 +18,17 @@ export function split<T>(collection: T[], chunkFn: (item: T) => boolean): T[][] 
             results.push(chunk);
 
             // ...skip this line & create a new chunk
-            i++;
-            chunk = [];
-            continue;
+            return () => rec(collection, i + 1, results, [])();
         }
 
         // ...otherwise, add to the chunk
         chunk.push(item);
 
         // ...and move onto the next item!
-        i++;
+        return () => rec(collection, i + 1, results, chunk)();
     }
+
+    return rec(collection, 0, [], [])();
 }
 
 // Source: https://stackoverflow.com/questions/4652468/is-there-a-javascript-function-that-reduces-a-fraction
