@@ -7,6 +7,7 @@ const path = require('path');
 const parser = new SmFileStepChartParser({ normalizeChart: true });
 const renderer = new ConsoleStepChartRenderer({
     realtime: false,
+    showMeasureNumbers: true,
     printFn: msg => { },
     waitThenFn: (waitTime, then) => setTimeout(() => then(), waitTime)
 });

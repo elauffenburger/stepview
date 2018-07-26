@@ -12,6 +12,8 @@
             "program": "${workspaceRoot}/node_modules/ts-node/dist/bin.js",
             "args": [
                 "${workspaceRoot}/util/render/index.ts",
+                "-d",
+                "true",
                 "-f",
                 "C:/Users/eric.lauffenburger/Downloads/In The Groove 1/In The Groove/Bouff/Bouff.sm"
             ],

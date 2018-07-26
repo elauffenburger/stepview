@@ -10,9 +10,11 @@ import { StepChartRenderArgs } from '..';
 
 interface Args {
     printFn: (msg: string) => void;
+    debugPrintFn?: (msg: string) => void;
     waitThenFn: (waitTime: number, then: () => void) => void;
 
     realtime: boolean;
+    showMeasureNumbers: boolean;
 }
 
 export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
@@ -50,7 +52,9 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
                 const note = measure.notes[noteNum];
 
                 const noteString = this.printNote(note);
-                const noteInfo = _.padEnd(`(${measureNum}, ${noteNum}):`, 10);
+                const noteInfo = this.args.showMeasureNumbers 
+                    ? _.padEnd(`(${measureNum}, ${noteNum}): `, 10) 
+                    : '';
 
                 // Calculate beat delta from last note
                 const beatDelta = lastNote ? note.beat - lastNote.beat : note.beat;
@@ -60,10 +64,10 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
                 if (maybeBpmChange) {
                     bpm = maybeBpmChange * renderArgs.bpmMultiplier;
 
-                    this.args.printFn(`---Changing BPM: ${bpm}---`);
+                    this.debug(`---Changing BPM: ${bpm}---`);
                 }
 
-                await this.printNoteToBeat(`${noteInfo} ${noteString}`, { bpm: bpm, lastBeatDelta: beatDelta })
+                await this.printNoteToBeat(`${noteInfo}${noteString}`, { bpm: bpm, lastBeatDelta: beatDelta })
 
                 lastNote = note;
             }
@@ -92,14 +96,14 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
     }
 
     protected printArrow(arrow: Arrow, noteType: NoteType): string {
-        // print arrow types that look the same no matter the direction
-        switch (arrow.type) {
-            case ArrowType.HoldRollTail:
-            case ArrowType.Hold:
-                return '|'
-        }
-
         const arrowCharacter = (() => {
+            // print arrow types that look the same no matter the direction
+            switch (arrow.type) {
+                case ArrowType.HoldRollTail:
+                case ArrowType.Hold:
+                    return '|'
+            }
+
             switch (arrow.direction) {
                 case ArrowDirection.Left:
                     switch (arrow.type) {
@@ -137,6 +141,15 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
         }
 
         const renderFunction = (() => {
+            switch (arrow.type) {
+                case ArrowType.HoldHead:
+                case ArrowType.Hold:
+                case ArrowType.HoldRollTail:
+                    return chalk.green;
+                default:
+                    break;
+            }
+
             switch (noteType) {
                 case NoteType.QUARTER:
                     return chalk.red;
@@ -164,5 +177,14 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
 
     protected isHold(arrow: Arrow): boolean {
         return arrow.type == ArrowType.HoldHead;
+    }
+
+    protected debug(msg: string) {
+        const debugPrintFn = this.args.debugPrintFn;
+        if (!debugPrintFn) {
+            return;
+        }
+
+        debugPrintFn(msg);
     }
 }
