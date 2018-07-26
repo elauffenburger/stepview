@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -10,22 +11,14 @@
     ],
     "module": "commonjs",
     "moduleResolution": "node",
-    "baseUrl": "./",
     "sourceMap": true,
     "target": "es5"
   },
   "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts",
-    "util/**/*.ts"
+    "./**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "src/**/*.spec.ts",
-    "src/**/__tests__/*.ts"
+    "node_modules"
   ],
-  "compileOnSave": false,
-  "atom": {
-    "rewriteTsconfig": false
-  }
+  "compileOnSave": false
 }

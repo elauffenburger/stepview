@@ -1,0 +1,7 @@
+{
+  "name": "stepview",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}

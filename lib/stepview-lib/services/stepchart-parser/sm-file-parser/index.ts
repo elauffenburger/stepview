@@ -15,7 +15,7 @@ import {
 } from '../../../models';
 import { split, clampPrecision } from '../../../helpers';
 
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { AbstractStepChartParser } from '../abstract-parser';
 
 export class SmFileStepChartParser extends AbstractStepChartParser {

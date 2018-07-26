@@ -1,0 +1,334 @@
+487598c4e316ff236c0306f23fcc4cb1
+"use strict";
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+var __assign = this && this.__assign || Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+    return t;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var models_1 = require("../../../models");
+var helpers_1 = require("../../../helpers");
+var lodash_1 = require("lodash");
+var abstract_parser_1 = require("../abstract-parser");
+var SmFileStepChartParser = /** @class */function (_super) {
+    __extends(SmFileStepChartParser, _super);
+    function SmFileStepChartParser() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SmFileStepChartParser.prototype.doParse = function (file) {
+        // Group lines by segment
+        var segments = this.splitFileIntoSegments(file);
+        // Validate file segments
+        this.validateSegments(segments);
+        // Get header info from header segment
+        var header = this.parseHeaderSegment(segments[0]);
+        // Build the notes segments (all the following segments should be notes segments)
+        var notesSegments = this.parseNotesSegments(segments.slice(1));
+        // Build the stepchart!
+        return {
+            headerSegment: header,
+            noteSegments: notesSegments
+        };
+    };
+    SmFileStepChartParser.prototype.splitFileIntoSegments = function (file) {
+        // Split the file into its constituent lines
+        var lines = file.split(/\r*\n/);
+        // Each file segment is delimited with an empty line
+        return helpers_1.split(lines, function (line) {
+            return line == '';
+        });
+    };
+    SmFileStepChartParser.prototype.validateSegments = function (segments) {
+        if (!segments) {
+            return { result: false, errors: ["'segments' was null or empty!"] };
+        }
+        if (segments.length == 1) {
+            return { result: false, errors: ["Only one Segment was found, which indicates 0 step patterns!"] };
+        }
+        return { result: true, errors: [] };
+    };
+    SmFileStepChartParser.prototype.parseHeaderSegment = function (lines) {
+        var result = {};
+        var i = 0;
+        while (i < lines.length) {
+            var builtLine = '';
+            // Consolidate multi-line statements into a single line
+            do {
+                var currentLine = lines[i++].trim();
+                var sanitizedLine = this.stripCommentsFromLine(currentLine);
+                builtLine += sanitizedLine;
+            } while (i < lines.length && (builtLine.length == 0 || builtLine[builtLine.length - 1] != ';'));
+            var _a = this.parseHeaderLine(builtLine),
+                tag = _a.tag,
+                value = _a.value;
+            switch (tag) {
+                case 'TITLE':
+                    result.title = value;
+                    break;
+                case 'SUBTITLE':
+                    result.subtitle = value;
+                    break;
+                case 'ARTIST':
+                    result.artist = value;
+                    break;
+                case 'TITLETRANSLIT':
+                    result.titleTransliteration = value;
+                    break;
+                case 'SUBTITLETRANSLIT':
+                    result.subtitleTransliteration = value;
+                    break;
+                case 'ARTISTTRANSLIT':
+                    result.artistTransliteration = value;
+                    break;
+                case 'CREDIT':
+                    result.credit = value;
+                    break;
+                case 'BANNER':
+                    result.bannerFileName = value;
+                    break;
+                case 'BACKGROUND':
+                    result.backgroundFileName = value;
+                    break;
+                case 'CDTITLE':
+                    result.cdTitle = value;
+                    break;
+                case 'MUSIC':
+                    result.musicFileName = value;
+                    break;
+                case 'OFFSET':
+                    result.offset = parseFloat(value);
+                    break;
+                case 'SAMPLESTART':
+                    result.sampleStart = parseFloat(value);
+                    break;
+                case 'SAMPLELENGTH':
+                    result.sampleLength = parseFloat(value);
+                    break;
+                case 'SELECTABLE':
+                    result.selectable = value == 'YES';
+                    break;
+                case 'BPMS':
+                    result.bpmSegments = this.parseBpmSegments(value);
+                    break;
+                case 'DISPLAYBPM':
+                    result.displayBpm = value == '*' ? '*' : parseFloat(value);
+                    break;
+                case 'STOPS':
+                    result.stopSegments = this.parseStopSegments(value);
+                    break;
+                case 'BGCHANGES':
+                    result.bgChangeSegments = this.parseBgChangeSegments(value);
+                    break;
+                default:
+            }
+        }
+        return result;
+    };
+    SmFileStepChartParser.prototype.stripCommentsFromLine = function (line) {
+        var firstCommentIndex = line.indexOf('//');
+        // If we didn't find a comment, just return the line;
+        // otherwise, ignore everything after the comment
+        return firstCommentIndex == -1 ? line : line.substring(0, firstCommentIndex - 1);
+    };
+    SmFileStepChartParser.prototype.parseHeaderLine = function (line) {
+        if (!line || !line.length || line[0] != '#') {
+            return { tag: '', value: '' };
+        }
+        var tagValueSeparator = line.indexOf(':');
+        var tag = line.substring(1, tagValueSeparator);
+        var value = line.substring(tagValueSeparator + 1, line.lastIndexOf(';'));
+        return { tag: tag, value: value };
+    };
+    SmFileStepChartParser.prototype.parseBpmSegments = function (value) {
+        return this.fromTagListValueToKvpList(value).map(function (kvp) {
+            return {
+                beat: parseInt(kvp[0]),
+                bpm: parseFloat(kvp[1])
+            };
+        });
+    };
+    SmFileStepChartParser.prototype.parseStopSegments = function (value) {
+        return this.fromTagListValueToKvpList(value).map(function (kvp) {
+            return {
+                beat: parseInt(kvp[0]),
+                duration: parseFloat(kvp[0])
+            };
+        });
+    };
+    SmFileStepChartParser.prototype.parseBgChangeSegments = function (value) {
+        return this.fromTagListValueToKvpList(value).map(function (kvp) {
+            return {
+                beat: parseInt(kvp[0]),
+                name: kvp[1]
+            };
+        });
+    };
+    SmFileStepChartParser.prototype.fromTagListValueToKvpList = function (value) {
+        return !value ? [] : value.split(',').map(function (segment) {
+            var keyValueSeparatorIndex = segment.indexOf('=');
+            var left = segment.substring(0, keyValueSeparatorIndex);
+            var right = segment.slice(keyValueSeparatorIndex + 1);
+            // So, it appears over time the standard "key=value" spec is no longer
+            // valid due to extensions; as in: a value may now contain '=' characters 
+            // for additional metadata that is meaningful only to the 
+            // feature receiving the value
+            return [left, right];
+        });
+    };
+    SmFileStepChartParser.prototype.parseNotesSegments = function (segments) {
+        var _this = this;
+        // We need to sanitize the segments ahead of time to ensure we
+        // don't try to parse zero-length "segments"
+        return segments.map(function (segment) {
+            return _this.sanitizeNotesSegmentLines(segment);
+        }).filter(function (segment) {
+            return segment.length;
+        }).map(function (segment) {
+            return _this.parseNotesSegment(segment);
+        });
+    };
+    SmFileStepChartParser.prototype.parseNotesSegment = function (lines) {
+        var _this = this;
+        if (!lines || !lines.length) {}
+        // TODO: error
+
+        // Sanitize the segment
+        var sanitizedLines = this.sanitizeNotesSegmentLines(lines);
+        // Parse the first line to ensure this is actually a notes segment
+        var tag = this.parseHeaderLine(sanitizedLines[0]).tag;
+        if (tag != 'NOTES') {}
+        // TODO: error
+
+        // Get the header data out of the textual data
+        var headerData = sanitizedLines.slice(1, 6).reduce(function (acc, line, i) {
+            var value = _this.parseNotesSegmentHeaderLine(line).value;
+            switch (i) {
+                case 0:
+                    acc.type = value.toLowerCase();
+                    break;
+                case 1:
+                    acc.description = value;
+                    break;
+                case 2:
+                    acc.difficultyClass = value.toLowerCase();
+                    break;
+                case 3:
+                    acc.difficultyMeter = parseInt(value);
+                    break;
+                case 4:
+                    var values = value.split(',');
+                    acc.radarValues = {
+                        voltage: parseFloat(values[0]),
+                        stream: parseFloat(values[1]),
+                        chaos: parseFloat(values[2]),
+                        freeze: parseFloat(values[3]),
+                        air: parseFloat(values[4])
+                    };
+                    break;
+            }
+            return acc;
+        }, {});
+        // All measure line groups:
+        // ex: 1001\n1001,\n1001,\n -> [['1001', '1001'], ['1001']]
+        var measures = helpers_1.split(sanitizedLines.slice(6), function (line) {
+            return line == ',';
+        });
+        var beatNum = 0;
+        var notes = measures.map(function (measureNotes, measureNum) {
+            var sanitizedMeasureNotes = measureNotes.filter(function (line) {
+                // If this is the end of a measure, ignore the line
+                return line != ';';
+            });
+            var numNotesInMeasure = sanitizedMeasureNotes.length;
+            // We want to know how many beats each note takes for beat num and note type calculations
+            var beatsPerNote = helpers_1.clampPrecision(models_1.BEATS_PER_MEASURE / sanitizedMeasureNotes.length);
+            return {
+                measure: measureNum,
+                notes: sanitizedMeasureNotes.reduce(function (notes, line, noteNum) {
+                    var noteData = {
+                        arrows: {
+                            left: { direction: models_1.ArrowDirection.Left, type: _this.getArrowTypeAt(0, line) },
+                            down: { direction: models_1.ArrowDirection.Down, type: _this.getArrowTypeAt(1, line) },
+                            up: { direction: models_1.ArrowDirection.Up, type: _this.getArrowTypeAt(2, line) },
+                            right: { direction: models_1.ArrowDirection.Right, type: _this.getArrowTypeAt(3, line) }
+                        }
+                    };
+                    var note = {
+                        beat: beatNum,
+                        rawData: line,
+                        type: _this.getNoteType(noteNum, numNotesInMeasure),
+                        data: noteData
+                    };
+                    // We need to calculate the beat the NEXT note will be on
+                    beatNum += beatsPerNote;
+                    notes.push(note);
+                    return notes;
+                }, [])
+            };
+        });
+        return __assign({}, headerData, { measures: notes });
+    };
+    SmFileStepChartParser.prototype.getNoteType = function (noteNum, numNotesInMeasure) {
+        var percentageOfMeasure = noteNum / numNotesInMeasure;
+        // Find the first type of note for which percentageOfMeasure % type == 0
+        var type = lodash_1.default.find(Object.keys(models_1.NoteType), function (t) {
+            return percentageOfMeasure % t == 0;
+        });
+        // Parse the type as a number if we found it or default to 192nd notes
+        return type && parseFloat(type) || models_1.NoteType.ONE_NINETY_SECOND;
+    };
+    SmFileStepChartParser.prototype.sanitizeNotesSegmentLines = function (lines) {
+        return lines.map(this.stripCommentsFromLine).map(function (line) {
+            return line.trim();
+        }).filter(function (line) {
+            return line != '';
+        });
+    };
+    SmFileStepChartParser.prototype.parseNotesSegmentHeaderLine = function (line) {
+        if (!line) {
+            return { value: '' };
+        }
+        var parts = line.split(':');
+        if (!parts.length) {
+            return { value: '' };
+        }
+        return { value: parts[0] };
+    };
+    SmFileStepChartParser.prototype.getArrowTypeAt = function (position, rawData) {
+        var typeCode = rawData[position];
+        switch (typeCode) {
+            case '0':
+                return models_1.ArrowType.None;
+            case '1':
+                return models_1.ArrowType.Normal;
+            case '2':
+                return models_1.ArrowType.HoldHead;
+            case '3':
+                return models_1.ArrowType.HoldRollTail;
+            case '4':
+                return models_1.ArrowType.RollHead;
+            case 'M':
+                return models_1.ArrowType.Mine;
+        }
+        return models_1.ArrowType.Unknown;
+    };
+    return SmFileStepChartParser;
+}(abstract_parser_1.AbstractStepChartParser);
+exports.SmFileStepChartParser = SmFileStepChartParser;

@@ -1,0 +1,86 @@
+1eb7cfce594e110d80d7a36ae8725a33
+"use strict";
+
+var __assign = this && this.__assign || Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+    return t;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var models_1 = require("../../../models");
+var _ = require("lodash");
+var helpers_1 = require("../../../helpers");
+var AbstractStepChartParser = /** @class */function () {
+    function AbstractStepChartParser(args) {
+        this.args = args;
+    }
+    AbstractStepChartParser.prototype.parse = function (file) {
+        var parsedChart = this.doParse(file);
+        // If we're not supposed to normalize, bail
+        if (!this.args.normalizeChart) {
+            return parsedChart;
+        }
+        // Otherwise: normalize
+        for (var _i = 0, _a = parsedChart.noteSegments; _i < _a.length; _i++) {
+            var noteSegment = _a[_i];
+            var noteArrowAccessors = [function (arrows) {
+                return arrows.left;
+            }, function (arrows) {
+                return arrows.down;
+            }, function (arrows) {
+                return arrows.up;
+            }, function (arrows) {
+                return arrows.right;
+            }];
+            var normalizedMeasures = this.normalizeMeasuresInNoteSegment(noteSegment, noteArrowAccessors);
+            noteSegment.measures = normalizedMeasures;
+        }
+        return parsedChart;
+    };
+    AbstractStepChartParser.prototype.normalizeMeasuresInNoteSegment = function (noteSegment, noteArrowAccessors) {
+        var _this = this;
+        var noteNum = 0;
+        return noteSegment.measures.reduce(function (measures, measure) {
+            var numNotes = measure.notes.length;
+            var linesToSkipPerNote = models_1.LINES_PER_MEASURE / numNotes - 1;
+            var notes = measure.notes.reduce(function (acc, note) {
+                var noteArrows = note.data.arrows;
+                acc.push(note);
+                noteNum++;
+                // We need to map our "explicitly defined lines" space to the "total lines per beat" space
+                // e.g. map 4 lines -> 48 notes
+                for (var skippedLine = 0; skippedLine < linesToSkipPerNote; skippedLine++) {
+                    if (acc.length >= models_1.LINES_PER_MEASURE) {
+                        break;
+                    }
+                    var fillerNote = __assign({}, models_1.makeEmptyNote(), { beat: helpers_1.clampPrecision(noteNum * 4 * models_1.NoteType.FORTY_EIGHTH) });
+                    var fillerNoteArrows = fillerNote.data.arrows;
+                    // Use our note accessors to perform transforms on our filler notes
+                    for (var _i = 0, noteArrowAccessors_1 = noteArrowAccessors; _i < noteArrowAccessors_1.length; _i++) {
+                        var noteArrowAccessor = noteArrowAccessors_1[_i];
+                        // Use the accessor to get the explicitly defined note
+                        var noteArrow = noteArrowAccessor(noteArrows);
+                        // Use the accessor to get the filler note
+                        var fillerNoteArrow = noteArrowAccessor(fillerNoteArrows);
+                        // Mark notes between HoldHead and HoldRollTail as Hold
+                        if (_this.isHold(noteArrow)) {
+                            fillerNoteArrow.direction = noteArrow.direction;
+                            fillerNoteArrow.type = models_1.ArrowType.Hold;
+                        }
+                    }
+                    acc.push(fillerNote);
+                    noteNum++;
+                }
+                return acc;
+            }, []);
+            return _.concat(measures, __assign({}, measure, { notes: notes }));
+        }, []);
+    };
+    AbstractStepChartParser.prototype.isHold = function (arrow) {
+        return arrow.type == models_1.ArrowType.HoldHead;
+    };
+    return AbstractStepChartParser;
+}();
+exports.AbstractStepChartParser = AbstractStepChartParser;

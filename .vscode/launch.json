@@ -8,10 +8,10 @@
             "type": "node",
             "request": "launch",
             "name": "Render Chart",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceRoot}/node_modules/ts-node/dist/bin.js",
+            "cwd": "${workspaceRoot}/util/render",
+            "program": "${workspaceRoot}/util/render/node_modules/ts-node/dist/bin.js",
             "args": [
-                "${workspaceRoot}/util/render/index.ts",
+                "index.ts",
                 "-d",
                 "true",
                 "-f",
@@ -39,16 +39,5 @@
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
         },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Jest Current File",
-            "program": "${workspaceFolder}/node_modules/.bin/jest.cmd",
-            "args": [
-                "${relativeFile}"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        }
     ]
 }

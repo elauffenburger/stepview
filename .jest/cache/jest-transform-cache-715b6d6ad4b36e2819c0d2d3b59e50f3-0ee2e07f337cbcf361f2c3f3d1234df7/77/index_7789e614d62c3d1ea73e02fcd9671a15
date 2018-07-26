@@ -1,0 +1,49 @@
+055fb7d7ee81ee852cb5061968059108
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("./stepchart"));
+function split(collection, chunkFn) {
+    function rec(collection, i, results, chunk) {
+        // If we're at the end of the line, add the current chunk and return results
+        if (i >= collection.length) {
+            results.push(chunk);
+            return function () {
+                return results;
+            };
+        }
+        // Get the current item
+        var item = collection[i];
+        // If we need to chunk on this item...
+        if (chunkFn(item)) {
+            // ...add this chunk to the results
+            results.push(chunk);
+            // ...skip this line & create a new chunk
+            return function () {
+                return rec(collection, i + 1, results, [])();
+            };
+        }
+        // ...otherwise, add to the chunk
+        chunk.push(item);
+        // ...and move onto the next item!
+        return function () {
+            return rec(collection, i + 1, results, chunk)();
+        };
+    }
+    return rec(collection, 0, [], [])();
+}
+exports.split = split;
+// Source: https://stackoverflow.com/questions/4652468/is-there-a-javascript-function-that-reduces-a-fraction
+function computeGcd(a, b) {
+    return b ? computeGcd(b, a % b) : a;
+}
+exports.computeGcd = computeGcd;
+// Source: https://stackoverflow.com/questions/4652468/is-there-a-javascript-function-that-reduces-a-fraction
+function reduceFraction(numerator, denominator) {
+    var gcd = computeGcd(numerator, denominator);
+    return { numerator: numerator / gcd, denominator: denominator / gcd };
+}
+exports.reduceFraction = reduceFraction;

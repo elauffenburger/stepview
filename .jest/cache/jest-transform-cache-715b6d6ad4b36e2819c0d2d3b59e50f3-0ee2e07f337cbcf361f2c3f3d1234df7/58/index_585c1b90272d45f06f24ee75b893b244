@@ -1,0 +1,283 @@
+9e848f48f567ff23759cabd8ba126dcc
+"use strict";
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) {
+            result.done ? resolve(result.value) : new P(function (resolve) {
+                resolve(result.value);
+            }).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = this && this.__generator || function (thisArg, body) {
+    var _ = { label: 0, sent: function () {
+            if (t[0] & 1) throw t[1];return t[1];
+        }, trys: [], ops: [] },
+        f,
+        y,
+        t,
+        g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () {
+        return this;
+    }), g;
+    function verb(n) {
+        return function (v) {
+            return step([n, v]);
+        };
+    }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0:case 1:
+                    t = op;break;
+                case 4:
+                    _.label++;return { value: op[1], done: false };
+                case 5:
+                    _.label++;y = op[1];op = [0];continue;
+                case 7:
+                    op = _.ops.pop();_.trys.pop();continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                        _ = 0;continue;
+                    }
+                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                        _.label = op[1];break;
+                    }
+                    if (op[0] === 6 && _.label < t[1]) {
+                        _.label = t[1];t = op;break;
+                    }
+                    if (t && _.label < t[2]) {
+                        _.label = t[2];_.ops.push(op);break;
+                    }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop();continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) {
+            op = [6, e];y = 0;
+        } finally {
+            f = t = 0;
+        }
+        if (op[0] & 5) throw op[1];return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var models_1 = require("../../../models");
+var abstract_renderer_1 = require("../abstract-renderer");
+var lodash_1 = require("lodash");
+var helpers_1 = require("../../../helpers");
+require("chalk");
+var chalk_1 = require("chalk");
+var ConsoleStepChartRenderer = /** @class */function (_super) {
+    __extends(ConsoleStepChartRenderer, _super);
+    function ConsoleStepChartRenderer(args) {
+        var _this = _super.call(this) || this;
+        _this.args = args;
+        return _this;
+    }
+    ConsoleStepChartRenderer.prototype.render = function (chart, renderArgs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var noteSegment, bpmSegments, bpmChangesLookup, lastNote, bpm, measures, _a, _b, _i, measureNum, measure, _c, _d, _e, noteNum, note, noteString, noteInfo, beatDelta, maybeBpmChange;
+            return __generator(this, function (_f) {
+                switch (_f.label) {
+                    case 0:
+                        renderArgs.bpmMultiplier = renderArgs.bpmMultiplier || 1;
+                        noteSegment = lodash_1.default.find(chart.noteSegments, function (s) {
+                            return s.type == 'dance-single';
+                        });
+                        if (!noteSegment) {
+                            // TODO: handle failure
+                            return [2 /*return*/];
+                        }
+                        bpmSegments = chart.headerSegment.bpmSegments;
+                        if (!bpmSegments || !bpmSegments.length) {
+                            // TODO: handle failure
+                            return [2 /*return*/];
+                        }
+                        bpmChangesLookup = helpers_1.toBpmChangesLookup(bpmSegments);
+                        bpm = 0;
+                        measures = noteSegment.measures;
+                        _a = [];
+                        for (_b in measures) _a.push(_b);
+                        _i = 0;
+                        _f.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 6];
+                        measureNum = _a[_i];
+                        measure = measures[measureNum];
+                        _c = [];
+                        for (_d in measure.notes) _c.push(_d);
+                        _e = 0;
+                        _f.label = 2;
+                    case 2:
+                        if (!(_e < _c.length)) return [3 /*break*/, 5];
+                        noteNum = _c[_e];
+                        note = measure.notes[noteNum];
+                        noteString = this.printNote(note);
+                        noteInfo = this.args.showMeasureNumbers ? lodash_1.default.padEnd("(" + measureNum + ", " + noteNum + "): ", 10) : '';
+                        beatDelta = lastNote ? note.beat - lastNote.beat : note.beat;
+                        maybeBpmChange = bpmChangesLookup[note.beat];
+                        if (maybeBpmChange) {
+                            bpm = maybeBpmChange * renderArgs.bpmMultiplier;
+                            this.debug("---Changing BPM: " + bpm + "---");
+                        }
+                        return [4 /*yield*/, this.printNoteToBeat("" + noteInfo + noteString, { bpm: bpm, lastBeatDelta: beatDelta })];
+                    case 3:
+                        _f.sent();
+                        lastNote = note;
+                        _f.label = 4;
+                    case 4:
+                        _e++;
+                        return [3 /*break*/, 2];
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 6:
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    ConsoleStepChartRenderer.prototype.printNoteToBeat = function (msg, beatInfo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var waitTime;
+            return __generator(this, function (_a) {
+                if (!this.args.realtime) {
+                    this.args.printFn(msg);
+                    return [2 /*return*/, Promise.resolve()];
+                }
+                waitTime = this.calculateNoteRenderDelay(beatInfo.lastBeatDelta, beatInfo.bpm);
+                return [2 /*return*/, new Promise(function (res, rej) {
+                    _this.args.waitThenFn(waitTime, function () {
+                        _this.args.printFn(msg);
+                        res();
+                    });
+                })];
+            });
+        });
+    };
+    ConsoleStepChartRenderer.prototype.printNote = function (note) {
+        var arrows = note.data.arrows;
+        return this.printArrow(arrows.left, note.type) + "  " + this.printArrow(arrows.up, note.type) + "  " + this.printArrow(arrows.down, note.type) + "  " + this.printArrow(arrows.right, note.type);
+    };
+    ConsoleStepChartRenderer.prototype.printArrow = function (arrow, noteType) {
+        var arrowCharacter = function () {
+            // print arrow types that look the same no matter the direction
+            switch (arrow.type) {
+                case models_1.ArrowType.HoldRollTail:
+                case models_1.ArrowType.Hold:
+                    return '|';
+            }
+            switch (arrow.direction) {
+                case models_1.ArrowDirection.Left:
+                    switch (arrow.type) {
+                        case models_1.ArrowType.Normal:
+                            return '<';
+                        case models_1.ArrowType.HoldHead:
+                            return '<';
+                    }
+                case models_1.ArrowDirection.Down:
+                    switch (arrow.type) {
+                        case models_1.ArrowType.Normal:
+                            return 'v';
+                        case models_1.ArrowType.HoldHead:
+                            return 'V';
+                    }
+                case models_1.ArrowDirection.Up:
+                    switch (arrow.type) {
+                        case models_1.ArrowType.Normal:
+                            return '^';
+                        case models_1.ArrowType.HoldHead:
+                            return 'A';
+                    }
+                case models_1.ArrowDirection.Right:
+                    switch (arrow.type) {
+                        case models_1.ArrowType.Normal:
+                            return '>';
+                        case models_1.ArrowType.HoldHead:
+                            return '>';
+                    }
+            }
+        }();
+        if (!arrowCharacter) {
+            return '.';
+        }
+        var renderFunction = function () {
+            switch (arrow.type) {
+                case models_1.ArrowType.HoldHead:
+                case models_1.ArrowType.Hold:
+                case models_1.ArrowType.HoldRollTail:
+                    return chalk_1.default.green;
+                default:
+                    break;
+            }
+            switch (noteType) {
+                case models_1.NoteType.QUARTER:
+                    return chalk_1.default.red;
+                case models_1.NoteType.EIGHTH:
+                    return chalk_1.default.blue;
+                case models_1.NoteType.TWELFTH:
+                    return chalk_1.default.hex('#8a2be2');
+                case models_1.NoteType.SIXTEENTH:
+                    return chalk_1.default.yellow;
+                case models_1.NoteType.TWENTY_FOURTH:
+                    return chalk_1.default.hex('#ff69b4');
+                case models_1.NoteType.THIRTY_SECOND:
+                    return chalk_1.default.hex('#ffa500');
+                case models_1.NoteType.FORTY_EIGHTH:
+                    return chalk_1.default.blueBright;
+                case models_1.NoteType.SIXTY_FOURTH:
+                    return chalk_1.default.green;
+                default:
+                    return chalk_1.default.gray;
+            }
+        }();
+        return renderFunction(arrowCharacter);
+    };
+    ConsoleStepChartRenderer.prototype.isHold = function (arrow) {
+        return arrow.type == models_1.ArrowType.HoldHead;
+    };
+    ConsoleStepChartRenderer.prototype.debug = function (msg) {
+        var debugPrintFn = this.args.debugPrintFn;
+        if (!debugPrintFn) {
+            return;
+        }
+        debugPrintFn(msg);
+    };
+    return ConsoleStepChartRenderer;
+}(abstract_renderer_1.AbstractStepChartRenderer);
+exports.ConsoleStepChartRenderer = ConsoleStepChartRenderer;
