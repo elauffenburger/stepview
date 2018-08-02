@@ -23,7 +23,7 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
     }
 
     async render(chart: StepChart, renderArgs: StepChartRenderArgs): Promise<void> {
-        renderArgs.bpmMultiplier = renderArgs.bpmMultiplier || 1;
+        renderArgs.speedMultiplier = renderArgs.speedMultiplier || 1;
 
         // We're just getting the first dance-single segment
         const noteSegment = _.find(chart.noteSegments, s => s.type == 'dance-single');
@@ -62,7 +62,7 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
                 // See if we're changing bpm
                 const maybeBpmChange = bpmChangesLookup[note.beat];
                 if (maybeBpmChange) {
-                    bpm = maybeBpmChange * renderArgs.bpmMultiplier;
+                    bpm = maybeBpmChange * renderArgs.speedMultiplier;
 
                     this.debug(`---Changing BPM: ${bpm}---`);
                 }
@@ -80,7 +80,7 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
             return Promise.resolve();
         }
 
-        const waitTime = this.calculateNoteRenderDelay(beatInfo.lastBeatDelta, beatInfo.bpm);
+        const waitTime = this.calculateNoteRenderDelayInMs(beatInfo.lastBeatDelta, beatInfo.bpm);
 
         return new Promise<void>((res, rej) => {
             this.args.waitThenFn(waitTime, () => {

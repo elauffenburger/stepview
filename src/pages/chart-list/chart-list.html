@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>ChartList</ion-title>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ng-container [ngSwitch]="songPacks?.length">
+    <ion-card *ngSwitchCase="false">
+      <ion-card-header>No Song Packs Found!</ion-card-header>
+      <ion-card-content>
+        <div>Perhaps you'd like to install some?</div>
+        <button ion-button (click)="onClickChooseSongPack()">Choose Song Pack</button>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-list *ngSwitchCase="true">
+      <ion-list-header *ngFor="let pack of songPacks">
+        <ion-item *ngFor="let chart of pack.songs">
+          {{chart.headerSegment.title}}
+          <ion-badge *ngFor="let level of getDifficultyLevelsForChart(chart)" [color]="getColorForDifficultyClass(level.class)" item-end>{{level.meter}}</ion-badge>
+        </ion-item>
+      </ion-list-header>
+    </ion-list>
+  </ng-container>
+</ion-content>

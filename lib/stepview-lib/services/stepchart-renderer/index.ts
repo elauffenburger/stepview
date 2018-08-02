@@ -5,5 +5,5 @@ export interface StepChartRenderer {
 }
 
 export interface StepChartRenderArgs {
-    bpmMultiplier?: number;
+    speedMultiplier?: number;
 }

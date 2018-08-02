@@ -22,12 +22,14 @@ export interface NotesSegment {
     | 'unknown';
 
     description?: string;
-    difficultyClass: 'beginner' | 'easy' | 'medium' | 'hard' | 'challenge';
+    difficultyClass: DifficultyClass;
     difficultyMeter: number;
     radarValues: RadarValues
 
     measures: NoteMeasureData[];
 }
+
+export type DifficultyClass = 'beginner' | 'easy' | 'medium' | 'hard' | 'challenge';
 
 export interface NoteMeasureData {
     measure: number;

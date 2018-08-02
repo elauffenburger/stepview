@@ -12,12 +12,15 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "sourceMap": true,
-    "target": "es5"
+    "target": "es5",
+    "paths": {
+      "@app/env": [
+        "src/environments/environment"
+      ]
+    }
   },
   "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts",
-    "util/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
