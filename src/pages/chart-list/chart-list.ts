@@ -5,10 +5,8 @@ import { StepChart, DifficultyClass } from 'lib/stepview-lib/models';
 import { getColorForDifficultyClass, getDifficultyLevelsForChart, DifficultyLevel } from '../../helpers/charts';
 import { SongPacksProvider } from '../../providers/song-packs/song-packs';
 import { NGXLogger } from 'ngx-logger';
-import { SPINNER } from '../../helpers/constants';
+import { SPINNER_TYPE } from '../../helpers/constants';
 import { FileProvider } from '../../providers/file/file';
-
-import 'zip-js/WebContent/zip.js'
 
 @IonicPage()
 @Component({
@@ -32,7 +30,7 @@ export class ChartListPage {
 
     const loader = this.loading.create({
       content: 'Loading song packs...',
-      spinner: SPINNER
+      spinner: SPINNER_TYPE
     });
 
     loader.present();
@@ -52,25 +50,6 @@ export class ChartListPage {
         .present();
     } finally {
       loader.dismiss();
-    }
-  }
-
-  async onClickChooseSongPack() {
-    try {
-      this.logger.info('Preparing to choose song pack file...')
-      const file = await this.fileService.chooseFileAsDataUrl();
-
-      this.logger.info('Chose file: ', file);
-
-      await this.songPacksService.saveSongPack('the-pack', file);
-    } catch (e) {
-      this.logger.error('Something went wrong while choosing song pack file: ', e);
-
-      this.alert
-        .create({
-          message: 'Something went wrong while choosing song pack file!s'
-        })
-        .present();
     }
   }
 

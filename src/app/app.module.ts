@@ -11,8 +11,11 @@ import { HomePage } from '../pages/home/home';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ChartListPageModule } from '../pages/chart-list/chart-list.module';
-import { SongPacksProvider, MockSongPacksProvider } from '../providers/song-packs/song-packs';
+import { SongPacksProvider, MockSongPacksProvider, JSZIP_OBJECT } from '../providers/song-packs/song-packs';
 import { FileProvider, MockFileProvider } from '../providers/file/file';
+import { ComponentsModule } from '../components/components.module';
+
+import * as JSZip from 'jszip';
 
 @NgModule({
   declarations: [
@@ -23,6 +26,7 @@ import { FileProvider, MockFileProvider } from '../providers/file/file';
     BrowserModule,
     IonicModule.forRoot(StepviewApp),
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),
+    ComponentsModule,
     ChartListPageModule,
   ],
   bootstrap: [IonicApp],
@@ -35,6 +39,7 @@ import { FileProvider, MockFileProvider } from '../providers/file/file';
     StatusBar,
     SplashScreen,
     File,
+    { provide: JSZIP_OBJECT, useValue: new JSZip() },
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     { provide: SongPacksProvider, useClass: MockSongPacksProvider },
     { provide: FileProvider, useClass: MockFileProvider }

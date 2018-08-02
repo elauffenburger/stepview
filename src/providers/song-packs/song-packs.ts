@@ -1,20 +1,21 @@
 import { SongPack } from '../../models/songs';
 import { Observable } from 'rxjs';
-import { Injectable } from '@angular/core';
+import { Injectable, InjectionToken, Inject } from '@angular/core';
 import { FileProvider } from '../file/file';
+import * as JSZip from 'jszip';
 
-import 'zip-js';
+export const JSZIP_OBJECT = new InjectionToken('JSZIP_OBJECT');
 
 export abstract class SongPacksProvider {
   abstract getSavedSongPacks(): Promise<SongPack[]>;
-  abstract saveSongPack(name: string, songPackDataUrl: string): Promise<any>;
+  abstract saveSongPack(name: string, songPackBase64Content: string): Promise<any>;
 }
 
 @Injectable()
 export class MockSongPacksProvider implements SongPacksProvider {
   private songPacks: SongPack[] = [];
 
-  constructor(private fileService: FileProvider) {}
+  constructor(private fileService: FileProvider, @Inject(JSZIP_OBJECT) private zip: JSZip) { }
 
   getSavedSongPacks(): Promise<SongPack[]> {
     return Observable
@@ -24,8 +25,10 @@ export class MockSongPacksProvider implements SongPacksProvider {
       .toPromise();
   }
 
-  async saveSongPack(name: string, songPackDataUrl: string): Promise<any> {
-    
+  async saveSongPack(name: string, songPackBase64Content: string): Promise<any> {
+    const result = await this.zip.loadAsync(songPackBase64Content, { base64: true });
+    console.log(result);
+    //this.fileService.saveApplicationFilesFromDataUrl(`song-packs/${name}`)
   }
 
   mockSavedSongPacks(songPacks: SongPack[]) {

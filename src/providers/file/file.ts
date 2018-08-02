@@ -11,16 +11,16 @@ export class MockFileProvider implements FileProvider {
     this.platformName = this.determinePlatformName();
   }
 
-  chooseFileAsDataUrl(): Promise<string> {
+  chooseFileAsDataUrl(beforeLoadFileFn: () => Promise<any>): Promise<string> {
     switch (this.platformName) {
       case 'web':
-        return this.chooseFileWeb();
+        return this.chooseFileWeb(beforeLoadFileFn);
     }
 
     throw 'Unknown platform type!';
   }
 
-  private chooseFileWeb(): Promise<string> {
+  private chooseFileWeb(beforeLoadFileFn: () => Promise<any>): Promise<string> {
     return new Promise((res, rej) => {
       // Make our hidden file element
       const inputElement = document.createElement('input');
@@ -30,16 +30,14 @@ export class MockFileProvider implements FileProvider {
       // Append element to DOM and trigger click
       document.body.appendChild(inputElement);
 
-      inputElement.onabort = function() {
-        console.log('yo')
-      }
-
-      inputElement.onchange = function () {
+      inputElement.onchange = async function () {
         // Grab the file
         const file: File = inputElement.files && inputElement.files.length && inputElement.files[0];
         if (!file) {
           rej('No file selected!');
         }
+
+        await beforeLoadFileFn();
 
         // Prep the FileReader for reading
         const fileReader = new FileReader();
@@ -62,13 +60,13 @@ export class MockFileProvider implements FileProvider {
   }
 
   private determinePlatformName(): PlatformName {
+    if (document.URL.startsWith('http')) {
+      return 'web';
+    }
+
     const matchingPlatformName = (['ios', 'android'] as PlatformName[]).find(name => this.platform.is(name));
     if (matchingPlatformName) {
       return matchingPlatformName;
-    }
-
-    if (document.URL.startsWith('http')) {
-      return 'web';
     }
 
     return 'unknown';
@@ -76,5 +74,5 @@ export class MockFileProvider implements FileProvider {
 }
 
 export abstract class FileProvider {
-  abstract chooseFileAsDataUrl(): Promise<string>;
+  abstract chooseFileAsDataUrl(beforeLoadFileFn: () => Promise<any>): Promise<string>;
 }

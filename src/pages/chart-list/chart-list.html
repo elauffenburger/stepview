@@ -12,8 +12,9 @@
     <ion-card *ngSwitchCase="false">
       <ion-card-header>No Song Packs Found!</ion-card-header>
       <ion-card-content>
-        <div>Perhaps you'd like to install some?</div>
-        <button ion-button (click)="onClickChooseSongPack()">Choose Song Pack</button>
+        <div>Perhaps you'd like to install one?</div>
+
+        <song-pack-uploader></song-pack-uploader>
       </ion-card-content>
     </ion-card>
 
