@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { SongPack } from '../../models/songs';
-import { StepChart, DifficultyClass } from 'lib/stepview-lib/models';
+import { StepChart, DifficultyClass, NotesSegmentType } from 'lib/stepview-lib/models';
 import { getColorForDifficultyClass, getDifficultyLevelsForChart, DifficultyLevel } from '../../helpers/charts';
 import { SongPacksProvider } from '../../providers/song-packs/song-packs';
 import { NGXLogger } from 'ngx-logger';
 import { SPINNER_TYPE } from '../../helpers/constants';
 import { FileProvider } from '../../providers/file/file';
+
+import * as _ from 'lodash'
 
 @IonicPage()
 @Component({
@@ -53,8 +55,10 @@ export class ChartListPage {
     }
   }
 
-  getDifficultyLevelsForChart(chart: StepChart): DifficultyLevel[] {
-    return getDifficultyLevelsForChart(chart);
+  getDifficultyLevelsForChart(chart: StepChart, segmentType: NotesSegmentType): DifficultyLevel[] {
+    const levels = getDifficultyLevelsForChart(chart, segmentType);
+
+    return _.sortBy(levels, level => level.meter);
   }
 
   getColorForDifficultyClass(difficultyClass: DifficultyClass): string {

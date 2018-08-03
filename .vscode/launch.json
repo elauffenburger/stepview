@@ -7,6 +7,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Song Packs Server",
+            "cwd": "${workspaceRoot}/util/song-packs",
+            "program": "${workspaceRoot}/util/song-packs/node_modules/ts-node/dist/bin.js",
+            "args": [ "index.ts" ],
+            "stopOnEntry": false,
+            "internalConsoleOptions": "openOnSessionStart",
+            "sourceMaps": true,
+            "protocol": "inspector",
+            "outFiles": [
+                "${workspaceFolder}/util/**/*.*",
+                "${workspaceFolder}/lib/**/*.*",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Render Chart",
             "cwd": "${workspaceRoot}/util/render",
             "program": "${workspaceRoot}/util/render/node_modules/ts-node/dist/bin.js",

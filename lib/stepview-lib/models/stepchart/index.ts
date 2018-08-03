@@ -9,7 +9,18 @@ export interface StepChart {
 }
 
 export interface NotesSegment {
-    type: 'dance-single'
+    type: NotesSegmentType;
+
+    description?: string;
+    difficultyClass: DifficultyClass;
+    difficultyMeter: number;
+    radarValues: RadarValues
+
+    measures: NoteMeasureData[];
+}
+
+export type NotesSegmentType = 
+    'dance-single'
     | 'dance-double'
     | 'dance-solo'
     | 'pump-single'
@@ -20,14 +31,6 @@ export interface NotesSegment {
     | 'ez2-real'
     | 'para-single'
     | 'unknown';
-
-    description?: string;
-    difficultyClass: DifficultyClass;
-    difficultyMeter: number;
-    radarValues: RadarValues
-
-    measures: NoteMeasureData[];
-}
 
 export type DifficultyClass = 'beginner' | 'easy' | 'medium' | 'hard' | 'challenge';
 

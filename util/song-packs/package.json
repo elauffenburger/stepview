@@ -1,0 +1,23 @@
+{
+  "name": "itg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node ./index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/express": "^4.16.0",
+    "ts-node": "^7.0.0",
+    "typescript": "^3.0.1"
+  }
+}

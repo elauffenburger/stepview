@@ -16,6 +16,7 @@ import { FileProvider, MockFileProvider } from '../providers/file/file';
 import { ComponentsModule } from '../components/components.module';
 
 import * as JSZip from 'jszip';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import * as JSZip from 'jszip';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     IonicModule.forRoot(StepviewApp),
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),
     ComponentsModule,

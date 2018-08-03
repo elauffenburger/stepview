@@ -18,13 +18,14 @@
       </ion-card-content>
     </ion-card>
 
-    <ion-list *ngSwitchCase="true">
-      <ion-list-header *ngFor="let pack of songPacks">
+    <ng-container *ngSwitchCase="true">
+      <ion-item-group *ngFor="let pack of songPacks">
+        <ion-item-divider color="light">{{pack.name}}</ion-item-divider>
         <ion-item *ngFor="let chart of pack.songs">
           {{chart.headerSegment.title}}
-          <ion-badge *ngFor="let level of getDifficultyLevelsForChart(chart)" [color]="getColorForDifficultyClass(level.class)" item-end>{{level.meter}}</ion-badge>
+          <ion-badge *ngFor="let level of getDifficultyLevelsForChart(chart, 'dance-single')" [color]="getColorForDifficultyClass(level.class)" item-end>{{level.meter}}</ion-badge>
         </ion-item>
-      </ion-list-header>
-    </ion-list>
+      </ion-item-group>
+    </ng-container>
   </ng-container>
 </ion-content>
