@@ -11,8 +11,6 @@ import { parseDataUri } from '../../helpers';
   templateUrl: 'song-pack-uploader.html'
 })
 export class SongPackUploaderComponent {
-  songPackName = '';
-
   constructor(
     private logger: NGXLogger,
     private fileService: FileProvider,
@@ -21,10 +19,9 @@ export class SongPackUploaderComponent {
     private loader: LoadingController) { }
 
   async onClickChooseSongPack() {
-    let fileDataUrl: string;
-
     let loader: Loading;
-
+    let fileDataUrl: string;
+    
     try {
       this.logger.info('Preparing to choose song pack file...')
       fileDataUrl = await this.fileService.chooseFileAsDataUrl(async () => {
@@ -36,7 +33,6 @@ export class SongPackUploaderComponent {
         await loader.present();
       });
 
-      this.logger.info('Chose file: ', fileDataUrl);
     } catch (e) {
       this.logger.error('Something went wrong while choosing song pack file: ', e);
 
@@ -57,10 +53,11 @@ export class SongPackUploaderComponent {
         content: 'Saving song pack...',
         spinner: SPINNER_TYPE
       });
+
       await loader.present();
 
       this.logger.info('Preparing to save song pack...');
-      await this.songPacksService.saveSongPack(this.songPackName, file.content);
+      await this.songPacksService.saveSongPack(file.content);
 
       this.logger.info('Saved song pack!')
     } catch (e) {
@@ -72,9 +69,5 @@ export class SongPackUploaderComponent {
     } finally {
       loader.dismiss();
     }
-  }
-
-  isChooseSongPackButtonDisabled(): boolean {
-    return !this.songPackName;
   }
 }
