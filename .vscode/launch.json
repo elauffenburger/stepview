@@ -47,8 +47,10 @@
             "request": "launch",
             "name": "Jest All",
             "address": "localhost",
+            "protocol": "inspector",
             "sourceMaps": true,
             "args": [
+                "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "--runInBand"
             ],
