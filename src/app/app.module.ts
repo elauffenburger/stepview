@@ -17,6 +17,7 @@ import { ComponentsModule } from '../components/components.module';
 
 import * as JSZip from 'jszip';
 import { HttpClientModule } from '@angular/common/http';
+import { ChartDetailsPageModule } from '../pages/chart-details/chart-details.module';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { HttpClientModule } from '@angular/common/http';
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),
     ComponentsModule,
     ChartListPageModule,
+    ChartDetailsPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [

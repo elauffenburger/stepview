@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>ChartList</ion-title>
+    <ion-title>Charts</ion-title>
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
@@ -21,9 +21,9 @@
     <ng-container *ngSwitchCase="true">
       <ion-item-group *ngFor="let pack of songPacks">
         <ion-item-divider color="light">{{pack.name}}</ion-item-divider>
-        <ion-item *ngFor="let chart of pack.songs">
+        <ion-item *ngFor="let chart of pack.songs" (click)="navigateToChart(chart)">
           {{chart.headerSegment.title}}
-          <ion-badge *ngFor="let level of getDifficultyLevelsForChart(chart, 'dance-single')" [color]="getColorForDifficultyClass(level.class)" item-end>{{level.meter}}</ion-badge>
+          <chart-difficulty-badges [limitsOnly]="true" [chart]="chart" [segmentType]="'dance-single'" item-end></chart-difficulty-badges>
         </ion-item>
       </ion-item-group>
     </ng-container>

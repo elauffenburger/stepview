@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>{{chart.headerSegment.title}}</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <h1>Styles</h1>
+  <ion-list *ngFor="let type of getNotesSegmentTypes()">
+    <ion-item-sliding>
+      <ion-item>
+        {{type}}
+      </ion-item>
+      <ion-item-options>
+        <chart-difficulty-badges [limitsOnly]="false" [chart]="chart" [segmentType]="type"></chart-difficulty-badges>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

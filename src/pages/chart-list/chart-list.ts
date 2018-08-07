@@ -9,6 +9,7 @@ import { SPINNER_TYPE } from '../../helpers/constants';
 import { FileProvider } from '../../providers/file/file';
 
 import * as _ from 'lodash'
+import { ChartDetailsPage, PageArgs as ChartDetailsPageArgs } from '../chart-details/chart-details';
 
 @IonicPage()
 @Component({
@@ -55,13 +56,14 @@ export class ChartListPage {
     }
   }
 
-  getDifficultyLevelsForChart(chart: StepChart, segmentType: NotesSegmentType): DifficultyLevel[] {
-    const levels = getDifficultyLevelsForChart(chart, segmentType);
+  navigateToChart(chart: StepChart) {
+    const args: ChartDetailsPageArgs = {
+      chart: chart
+    };
 
-    return _.sortBy(levels, level => level.meter);
-  }
-
-  getColorForDifficultyClass(difficultyClass: DifficultyClass): string {
-    return getColorForDifficultyClass(difficultyClass);
+    this.navCtrl.push(ChartDetailsPage, args, {
+      animate: true,
+      animation: 'md-transition'
+    });
   }
 }

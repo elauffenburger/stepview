@@ -12,7 +12,10 @@ export const environment: Environment = {
 
         const mockSongPacksProvider = injector.get(SongPacksProvider) as MockSongPacksProvider;
         if (mockSongPacksProvider) {
-            const songPacks: SongPack[] = await http.get<SongPack[]>("http://localhost:4020/song-packs").toPromise();
+            const songPacks = await http.get<SongPack[]>("http://localhost:4020/song-packs")
+                .toPromise()
+                .catch(() => []);
+
             mockSongPacksProvider.mockSavedSongPacks(songPacks);
         }
 

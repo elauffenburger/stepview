@@ -1,0 +1,4 @@
+<ng-container *ngFor="let level of getDifficultyLevelsForChart(); let first = first; let count = count">
+  <ion-badge class="difficulty-badge" [color]="getColorForDifficultyClass(level.class)" item-end> {{level.meter}} </ion-badge>
+  <span class="to-label" *ngIf="limitsOnly && first && count != 1">&rarr;</span>
+</ng-container>
