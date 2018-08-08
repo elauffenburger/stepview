@@ -13,138 +13,121 @@ import {
     ArrowType,
     ArrowDirection
 } from '../../../models';
-import { split, clampPrecision } from '../../../helpers';
+import { split, toLines, clampPrecision, NEWLINE_REGEX } from '../../../helpers';
 
 import * as _ from 'lodash';
 import { AbstractStepChartParser } from '../abstract-parser';
 
 export class SmFileStepChartParser extends AbstractStepChartParser {
     protected doParse(file: string): StepChart {
-        // Group lines by segment
-        const segments = this.splitFileIntoSegments(file);
-
         // Validate file segments
-        this.validateSegments(segments);
-
-        // Get header info from header segment
-        const header = this.parseHeaderSegment(segments[0]);
-
-        // Build the notes segments (all the following segments should be notes segments)
-        const notesSegments = this.parseNotesSegments(segments.slice(1));
+        this.validateFile(file);
 
         // Build the stepchart!
-        return {
-            headerSegment: header,
-            noteSegments: notesSegments
-        }
+        return this.doParseInternal(file);
     }
 
-    splitFileIntoSegments(file: string) {
-        // Split the file into its constituent lines
-        const lines = file.split(/\r*\n/);
-
-        // Each file segment is delimited with an empty line
-        return split(lines, line => line == '');
-    }
-
-    validateSegments(segments: string[][]): { result: boolean, errors: string[] } {
-        if (!segments) {
-            return { result: false, errors: ["'segments' was null or empty!"] };
-        }
-
-        if (segments.length == 1) {
-            return { result: false, errors: [`Only one Segment was found, which indicates 0 step patterns!`] }
-        }
-
+    validateFile(file: string): { result: boolean, errors: string[] } {
         return { result: true, errors: [] };
     }
 
-    parseHeaderSegment(lines: string[]): HeaderSegment {
-        const result: HeaderSegment = {};
+    doParseInternal(file: string): StepChart {
+        const lines = toLines(file);
 
-        let i = 0;
-        while (i < lines.length) {
-            let builtLine = '';
+        const header: HeaderSegment = {};
+        const noteSegmentsLines: string[][] = [];
 
-            // Consolidate multi-line statements into a single line
-            do {
-                const currentLine = lines[i++].trim();
-                const sanitizedLine = this.stripCommentsFromLine(currentLine);
+        let lineNum = 0;
+        while (lineNum < lines.length) {
+            let builtLineParts: string[] = [];
 
-                builtLine += sanitizedLine;
-            }
+            // Consolidate multi-line statements into a single line:
             // Keep looping while there are still lines to read
             //   and either: 
             //      the line still doesn't have any content
             //      or the line does have content but it's still not ';'
-            while (i < lines.length && (builtLine.length == 0 || builtLine[builtLine.length - 1] != ';'))
+            do {
+                const currentLine = lines[lineNum++].trim();
+                const sanitizedLine = this.stripCommentsFromLine(currentLine);
 
-            const { tag, value } = this.parseHeaderLine(builtLine);
+                builtLineParts.push(sanitizedLine);
+            }
+            while (lineNum < lines.length && (builtLineParts.length == 0 || _.last(_.last(builtLineParts)) != ';'))
+
+            const builtLine = builtLineParts.join('\n').trim();
+            const { tag, rawValue, value } = this.parseHeaderLine(builtLine);
 
             switch (tag) {
                 case 'TITLE':
-                    result.title = value;
+                    header.title = value;
                     break;
                 case 'SUBTITLE':
-                    result.subtitle = value;
+                    header.subtitle = value;
                     break;
                 case 'ARTIST':
-                    result.artist = value;
+                    header.artist = value;
                     break;
                 case 'TITLETRANSLIT':
-                    result.titleTransliteration = value;
+                    header.titleTransliteration = value;
                     break;
                 case 'SUBTITLETRANSLIT':
-                    result.subtitleTransliteration = value;
+                    header.subtitleTransliteration = value;
                     break;
                 case 'ARTISTTRANSLIT':
-                    result.artistTransliteration = value;
+                    header.artistTransliteration = value;
                     break;
                 case 'CREDIT':
-                    result.credit = value;
+                    header.credit = value;
                     break;
                 case 'BANNER':
-                    result.bannerFileName = value;
+                    header.bannerFileName = value;
                     break;
                 case 'BACKGROUND':
-                    result.backgroundFileName = value;
+                    header.backgroundFileName = value;
                     break;
                 case 'CDTITLE':
-                    result.cdTitle = value;
+                    header.cdTitle = value;
                     break;
                 case 'MUSIC':
-                    result.musicFileName = value;
+                    header.musicFileName = value;
                     break;
                 case 'OFFSET':
-                    result.offset = parseFloat(value);
+                    header.offset = parseFloat(value);
                     break;
                 case 'SAMPLESTART':
-                    result.sampleStart = parseFloat(value);
+                    header.sampleStart = parseFloat(value);
                     break;
                 case 'SAMPLELENGTH':
-                    result.sampleLength = parseFloat(value);
+                    header.sampleLength = parseFloat(value);
                     break;
                 case 'SELECTABLE':
-                    result.selectable = value == 'YES';
+                    header.selectable = value == 'YES';
                     break;
                 case 'BPMS':
-                    result.bpmSegments = this.parseBpmSegments(value);
+                    header.bpmSegments = this.parseBpmSegments(value);
                     break;
                 case 'DISPLAYBPM':
-                    result.displayBpm = value == '*' ? '*' : parseFloat(value);
+                    header.displayBpm = value == '*' ? '*' : parseFloat(value);
                     break;
                 case 'STOPS':
-                    result.stopSegments = this.parseStopSegments(value);
+                    header.stopSegments = this.parseStopSegments(value);
                     break;
                 case 'BGCHANGES':
-                    result.bgChangeSegments = this.parseBgChangeSegments(value);
+                    header.bgChangeSegments = this.parseBgChangeSegments(value);
                     break;
+                case 'NOTES':
+                    const segment = rawValue.split(':').map(line => line.trim());
+
+                    noteSegmentsLines.push(segment);
                 default:
                 // Here's where I'd put my logging...IF I HAD ANY
             }
         }
 
-        return result;
+        return {
+            headerSegment: header,
+            noteSegments: this.parseNotesSegments(noteSegmentsLines)
+        }
     }
 
     stripCommentsFromLine(line: string): string {
@@ -157,17 +140,18 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
             : line.substring(0, firstCommentIndex - 1);
     }
 
-    parseHeaderLine(line: string): { tag: string, value: string } {
+    parseHeaderLine(line: string): { tag: string, rawValue: string, value: string } {
         if (!line || !line.length || line[0] != '#') {
-            return { tag: '', value: '' };
+            return { tag: '', value: '', rawValue: '' };
         }
 
         const tagValueSeparator = line.indexOf(':');
 
         const tag = line.substring(1, tagValueSeparator);
-        const value = line.substring(tagValueSeparator + 1, line.lastIndexOf(';'));
+        const rawValue = line.substring(tagValueSeparator + 1, line.lastIndexOf(';'));
+        const value = rawValue.replace(NEWLINE_REGEX, '').trim();
 
-        return { tag, value };
+        return { tag, rawValue, value };
     }
 
     parseBpmSegments(value: string): BpmSegment[] {
@@ -216,11 +200,7 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
     }
 
     parseNotesSegments(segments: string[][]): NotesSegment[] {
-        // We need to sanitize the segments ahead of time to ensure we
-        // don't try to parse zero-length "segments"
-        return segments.map(segment => this.sanitizeNotesSegmentLines(segment))
-            .filter(segment => segment.length)
-            .map(segment => this.parseNotesSegment(segment));
+        return segments.map(segment => this.parseNotesSegment(segment));
     }
 
     parseNotesSegment(lines: string[]): NotesSegment {
@@ -238,10 +218,8 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
         }
 
         // Get the header data out of the textual data
-        const headerData = sanitizedLines.slice(1, 6)
-            .reduce((acc, line, i) => {
-                const { value } = this.parseNotesSegmentHeaderLine(line);
-
+        const headerData = sanitizedLines.slice(0, 5)
+            .reduce((acc, value, i) => {
                 switch (i) {
                     case 0:
                         acc.type = <any>value.toLowerCase();
@@ -274,7 +252,8 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
 
         // All measure line groups:
         // ex: 1001\n1001,\n1001,\n -> [['1001', '1001'], ['1001']]
-        const measures = split(sanitizedLines.slice(6), line => line == ',');
+        const nonEmptySanitizedLines = toLines(sanitizedLines[5]).filter(line => line.length);
+        const measures = split(nonEmptySanitizedLines, line => line == ',');
 
         let beatNum = 0;
         const notes = measures.map((measureNotes, measureNum) => {
@@ -335,29 +314,13 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
     }
 
     private sanitizeNotesSegmentLines(lines: string[]) {
-        return lines
-            .map(this.stripCommentsFromLine)
-            .map(line => line.trim())
-            .filter(line => line != '');
-    }
-
-    parseNotesSegmentHeaderLine(line: string): { value: string } {
-        if (!line) {
-            return { value: '' };
-        }
-
-        const parts = line.split(':');
-        if (!parts.length) {
-            return { value: '' };
-        }
-
-        return { value: parts[0] };
+        return lines.map(this.stripCommentsFromLine);
     }
 
     private getArrowTypeAt(position: number, rawData: string): ArrowType {
         const typeCode = rawData[position];
 
-        switch(typeCode) {
+        switch (typeCode) {
             case '0':
                 return ArrowType.None;
             case '1':

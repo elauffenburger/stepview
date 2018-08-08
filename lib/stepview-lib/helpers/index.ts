@@ -42,3 +42,8 @@ export function reduceFraction(numerator: number, denominator: number): { numera
 
     return { numerator: numerator / gcd, denominator: denominator / gcd };
 }
+
+export const NEWLINE_REGEX = /\r?\n/;
+export function toLines(str: string): string[] {
+    return str.split(NEWLINE_REGEX);
+}

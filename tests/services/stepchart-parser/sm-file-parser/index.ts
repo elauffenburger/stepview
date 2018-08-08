@@ -1,38 +1,35 @@
 import { StepChart, NoteType, ArrowType, ArrowDirection, makeEmptyArrows } from 'lib/stepview-lib/models/stepchart';
 import { SmFileStepChartParser } from "lib/stepview-lib/services/stepchart-parser";
+import { toLines } from 'lib/stepview-lib/helpers';
 
 const fs = require('fs');
 const path = require('path');
 
 const file = fs.readFileSync(path.resolve(__dirname, './files/Break Free.sm'), 'utf8');
+const fileLines = toLines(file);
 
 const parser = new SmFileStepChartParser({ normalizeChart: false });
-const segments = parser.splitFileIntoSegments(file);
 
 export const CHART_FIXTURE: StepChart = makeFixture();
 
 describe('can parse the header', () => {
-    // The header segment is the first segment
-    const headerSegmentLines = segments[0];
-
     it('can parse basic header info', () => {
-        const titleLine = headerSegmentLines[0];
+        const titleLine = fileLines[0];
         expect(titleLine).toEqual('#TITLE:Break Free;');
 
         const parsedTitleLine = parser.parseHeaderLine(titleLine);
-        expect(parsedTitleLine).toEqual({ tag: 'TITLE', value: 'Break Free' });
+        expect(parsedTitleLine).toEqual({ tag: 'TITLE', rawValue: 'Break Free', value: 'Break Free' });
     })
 
     it('can parse header segment', () => {
-        const headerSegment = parser.parseHeaderSegment(headerSegmentLines);
+        const headerSegment = parser.parse(file).headerSegment;
 
         expect(headerSegment).toEqual(CHART_FIXTURE.headerSegment);
     });
 });
 
 it('can parse data segments', () => {
-    // The notes segments are the segments other than the first
-    const notesSegments = parser.parseNotesSegments(segments.slice(1));
+    const notesSegments = parser.parse(file).noteSegments;
 
     expect(notesSegments).toEqual(CHART_FIXTURE.noteSegments);
 });
