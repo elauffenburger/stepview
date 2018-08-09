@@ -11,13 +11,16 @@ import { HomePage } from '../pages/home/home';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ChartListPageModule } from '../pages/chart-list/chart-list.module';
-import { SongPacksProvider, MockSongPacksProvider, JSZIP_OBJECT } from '../providers/song-packs/song-packs';
+import { SongPacksProvider, JSZIP_OBJECT } from '../providers/song-packs/song-packs';
 import { FileProvider, MockFileProvider } from '../providers/file/file';
 import { ComponentsModule } from '../components/components.module';
 
 import * as JSZip from 'jszip';
 import { HttpClientModule } from '@angular/common/http';
 import { ChartDetailsPageModule } from '../pages/chart-details/chart-details.module';
+import { MockSongPacksProvider } from '../providers/song-packs/mock-song-packs';
+import { SmFileStepChartParser } from '../../lib/stepview-lib/services/stepchart-parser';
+import { SimpleChartViewerPageModule } from '../pages/simple-chart-viewer/simple-chart-viewer.module';
 
 @NgModule({
   declarations: [
@@ -31,7 +34,8 @@ import { ChartDetailsPageModule } from '../pages/chart-details/chart-details.mod
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),
     ComponentsModule,
     ChartListPageModule,
-    ChartDetailsPageModule
+    ChartDetailsPageModule,
+    SimpleChartViewerPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -43,10 +47,11 @@ import { ChartDetailsPageModule } from '../pages/chart-details/chart-details.mod
     StatusBar,
     SplashScreen,
     File,
+    SmFileStepChartParser,
     { provide: JSZIP_OBJECT, useValue: new JSZip() },
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     { provide: SongPacksProvider, useClass: MockSongPacksProvider },
-    { provide: FileProvider, useClass: MockFileProvider }
+    { provide: FileProvider, useClass: MockFileProvider },
   ]
 })
 export class AppModule { }

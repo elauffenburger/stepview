@@ -1,10 +1,10 @@
-import { ConsoleStepChartRenderer } from "lib/stepview-lib/services/stepchart-renderer/console-renderer";
-import { SmFileStepChartParser } from "lib/stepview-lib/services/stepchart-parser";
+import { ConsoleStepChartRenderer } from "../../../lib/stepview-lib/services/stepchart-renderer/console-renderer";
+import { SmFileStepChartParser } from "../../../lib/stepview-lib/services/stepchart-parser";
 
 const fs = require('fs');
 const path = require('path');
 
-const parser = new SmFileStepChartParser({ normalizeChart: true });
+const parser = new SmFileStepChartParser();
 const renderer = new ConsoleStepChartRenderer({
     realtime: false,
     showMeasureNumbers: true,

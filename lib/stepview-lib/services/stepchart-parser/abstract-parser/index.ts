@@ -1,20 +1,21 @@
 import { Arrow, NoteDataArrows, StepChart, NotesSegment, LINES_PER_MEASURE, makeEmptyNote, ArrowType, Note, NoteMeasureData, NoteType, BEATS_PER_MEASURE } from "../../../models";
-import { StepChartParser } from "..";
+import { StepChartParser, ParseOptions } from "..";
 import * as _ from "lodash";
 import { clampPrecision } from "../../../helpers";
 
 export type NoteArrowAccessor = (arrows: NoteDataArrows) => Arrow;
 
 export abstract class AbstractStepChartParser implements StepChartParser {
-    constructor(private args: { normalizeChart: boolean }) { }
+    protected abstract doParse(rawChart: string, options: ParseOptions): StepChart;
 
-    protected abstract doParse(file: string): StepChart;
+    parse(rawChart: string, options: ParseOptions = {}): StepChart {
+        options.normalizeChart = options.normalizeChart === undefined ? true : options.normalizeChart;
+        options.includeNotesSegments = options.includeNotesSegments === undefined ? true : options.includeNotesSegments;
 
-    parse(file: string): StepChart {
-        const parsedChart = this.doParse(file);
+        const parsedChart = this.doParse(rawChart, options);
 
         // If we're not supposed to normalize, bail
-        if (!this.args.normalizeChart) {
+        if (!options.normalizeChart) {
             return parsedChart;
         }
 

@@ -1,19 +1,16 @@
 import { SongPack } from '../../models/songs';
-import { Observable } from 'rxjs';
-import { Injectable, InjectionToken, Inject } from '@angular/core';
-import { FileProvider } from '../file/file';
+import { InjectionToken, Inject } from '@angular/core';
 import { File } from '@ionic-native/file';
 import { NGXLogger } from 'ngx-logger';
 
 import * as JSZip from 'jszip';
-import * as _ from 'lodash';
 
 export const JSZIP_OBJECT = new InjectionToken('JSZIP_OBJECT');
 
 const SONG_PACK_DIR = 'song-packs'
 
 export abstract class SongPacksProvider {
-  constructor(private fileService: FileProvider, @Inject(JSZIP_OBJECT) private zip: JSZip, private file: File, private logger: NGXLogger) { }
+  constructor(@Inject(JSZIP_OBJECT) protected zip: JSZip, protected file: File, protected logger: NGXLogger) { }
 
   abstract getSavedSongPacks(): Promise<SongPack[]>;
 
@@ -93,35 +90,6 @@ export abstract class SongPacksProvider {
       const pathParts = file.name.split('/');
 
       return pathParts[pathParts.length - 1] === '';
-    }
-  }
-}
-
-@Injectable()
-export class MockSongPacksProvider extends SongPacksProvider {
-  private songPacks: SongPack[] = [];
-
-  constructor(fileService: FileProvider, @Inject(JSZIP_OBJECT) zip: JSZip, file: File, logger: NGXLogger) {
-    super(fileService, zip, file, logger);
-
-    // For debug!
-    (<any>window)._injected = (<any>window)._injected || {};
-    (<any>window)._injected.file = file;
-  }
-
-  getSavedSongPacks(): Promise<SongPack[]> {
-    return Observable
-      .interval(300)
-      .take(1)
-      .map(i => this.songPacks)
-      .toPromise();
-  }
-
-  mockSavedSongPacks(songPacks: SongPack[]) {
-    this.songPacks.slice(0, this.songPacks.length);
-
-    for (let pack of songPacks) {
-      this.songPacks.push(pack);
     }
   }
 }

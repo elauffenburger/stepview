@@ -20,3 +20,11 @@ export function parseDataUri(uri: string): ParsedDataUri {
         content: parsed[3]
     };
 }
+
+export function timeOperation<T>(op: () => T): { result: T, elapsedMs: number } {
+    const before = performance.now();
+    const result = op();
+    const after = performance.now();
+
+    return { result, elapsedMs: (after - before) };
+}

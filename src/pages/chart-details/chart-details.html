@@ -6,14 +6,13 @@
 
 <ion-content padding>
   <h1>Styles</h1>
-  <ion-list *ngFor="let type of getNotesSegmentTypes()">
-    <ion-item-sliding>
-      <ion-item>
-        {{type}}
-      </ion-item>
-      <ion-item-options>
-        <chart-difficulty-badges [limitsOnly]="false" [chart]="chart" [segmentType]="type"></chart-difficulty-badges>
-      </ion-item-options>
-    </ion-item-sliding>
-  </ion-list>
+  <ion-item-group *ngFor="let type of getNotesSegmentTypes()">
+    <ion-item-divider>{{type}}</ion-item-divider>
+    <ion-item *ngFor="let level of getDifficultyLevelsForNotesSegmentType(type)" (click)="onClickSelectDifficulty(type, level)">
+      {{level.class}}
+      <ion-avatar item-start>
+        <chart-difficulty-badge [level]="level"></chart-difficulty-badge>
+      </ion-avatar>
+    </ion-item>
+  </ion-item-group>
 </ion-content>

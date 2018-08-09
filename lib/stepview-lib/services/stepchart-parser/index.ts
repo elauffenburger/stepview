@@ -1,7 +1,11 @@
-import { StepChart, NotesSegment, LINES_PER_MEASURE, makeEmptyNote, ArrowType, NoteMeasureData, Note, Arrow, NoteDataArrows } from '../../models';
-import _ from 'lodash';
+import { StepChart } from '../../models';
 export * from './sm-file-parser';
 
+export interface ParseOptions {
+    normalizeChart?: boolean;
+    includeNotesSegments?: boolean;
+}
+
 export interface StepChartParser {
-    parse(file: string): StepChart;
+    parse(rawChart: string, options: ParseOptions): StepChart;
 }

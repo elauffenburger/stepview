@@ -1,0 +1,15 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>{{chart?.headerSegment?.title}}</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ng-container *ngIf="notes">
+    <ion-list [virtualScroll]="notes.measures">
+      <div *virtualItem="let measure">
+        <simple-chart-measure [measure]="measure"></simple-chart-measure>
+      </div>
+    </ion-list>
+  </ng-container>
+</ion-content>

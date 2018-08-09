@@ -37,12 +37,13 @@
 0000
 0000
 0000
-,
+// note the whitespace below
+,   
 0000
 0000
 0000
 0000
-,
+,   // test case for comments on meaningful lines
 0001
 0100
 0001

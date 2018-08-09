@@ -1,0 +1,18 @@
+simple-chart-measure {
+    .measure-container {
+        flex: 1 0 100%;
+        .note {
+            display: flex;
+            flex: 1 0 100%;
+            .arrow-container {
+                display: inline-flex;
+                flex: 1 0 25%;
+                .arrow {
+                    &.hidden {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}

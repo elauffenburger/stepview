@@ -3,8 +3,11 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
+import BSON from 'bson';
 
 import { SongPack } from '../../src/models/songs';
+
+const bson = new BSON();
 
 const port = process.env.PORT || 4020;
 const app = express();
@@ -33,7 +36,7 @@ app.listen(port, () => {
 });
 
 const cachedPacks = {};
-function getSongPack(songPackName: string): SongPack {
+function getSongPack(songPackName: string): { name: string, songs: string[] } {
     const cachedPack = cachedPacks[songPackName];
     if (cachedPack) {
         return cachedPack;
@@ -43,12 +46,10 @@ function getSongPack(songPackName: string): SongPack {
 
     const songs = fs.readdirSync(path.resolve(__dirname, songPackSongsDir))
         .map(fileName => {
-            const file = fs.readFileSync(`${songPackSongsDir}/${fileName}`, { encoding: 'utf8' });
-
-            return JSON.parse(file.toString());
+            return fs.readFileSync(`${songPackSongsDir}/${fileName}`, { encoding: 'utf8' });
         });
 
-    const pack = <SongPack>{
+    const pack = {
         name: songPackName,
         songs: songs
     };

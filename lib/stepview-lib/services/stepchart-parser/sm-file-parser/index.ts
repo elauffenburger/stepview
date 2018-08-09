@@ -17,22 +17,24 @@ import { split, toLines, clampPrecision, NEWLINE_REGEX } from '../../../helpers'
 
 import * as _ from 'lodash';
 import { AbstractStepChartParser } from '../abstract-parser';
+import { ParseOptions } from '..';
 
 export class SmFileStepChartParser extends AbstractStepChartParser {
-    protected doParse(file: string): StepChart {
+    protected doParse(chartData: string, options: ParseOptions): StepChart {
         // Validate file segments
-        this.validateFile(file);
+        this.validateChartData(chartData);
 
         // Build the stepchart!
-        return this.doParseInternal(file);
+        return this.doParseInternal(chartData, options);
     }
 
-    validateFile(file: string): { result: boolean, errors: string[] } {
+    private validateChartData(chartData: string): { result: boolean, errors: string[] } {
+        // TODO: actually do this
         return { result: true, errors: [] };
     }
 
-    doParseInternal(file: string): StepChart {
-        const lines = toLines(file);
+    private doParseInternal(chartData: string, options: ParseOptions): StepChart {
+        const lines = toLines(chartData);
 
         const header: HeaderSegment = {};
         const noteSegmentsLines: string[][] = [];
@@ -124,13 +126,19 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
             }
         }
 
+        // Only parse the notes segments if we're supposed to
+        const noteSegments = this.parseNotesSegments(noteSegmentsLines, options);
+
         return {
             headerSegment: header,
-            noteSegments: this.parseNotesSegments(noteSegmentsLines)
+            noteSegments: noteSegments,
+            getSourceContent: () => chartData,
+            getParser: () => this,
+            getParseOptions: () => options
         }
     }
 
-    stripCommentsFromLine(line: string): string {
+    private stripCommentsFromLine(line: string): string {
         const firstCommentIndex = line.indexOf('//');
 
         // If we didn't find a comment, just return the line;
@@ -184,7 +192,7 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
             });
     }
 
-    fromTagListValueToKvpList(value: string): string[][] {
+    private fromTagListValueToKvpList(value: string): string[][] {
         return !value ? [] : value.split(',').map(segment => {
             const keyValueSeparatorIndex = segment.indexOf('=');
 
@@ -199,26 +207,23 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
         });
     }
 
-    parseNotesSegments(segments: string[][]): NotesSegment[] {
-        return segments.map(segment => this.parseNotesSegment(segment));
+    parseNotesSegments(segments: string[][], options: ParseOptions): NotesSegment[] {
+        return segments.map(segment => this.parseNotesSegment(segment, options));
     }
 
-    parseNotesSegment(lines: string[]): NotesSegment {
+    parseNotesSegment(lines: string[], options: ParseOptions): NotesSegment {
         if (!lines || !lines.length) {
             // TODO: error
         }
 
-        // Sanitize the segment
-        const sanitizedLines = this.sanitizeNotesSegmentLines(lines);
-
         // Parse the first line to ensure this is actually a notes segment
-        const { tag } = this.parseHeaderLine(sanitizedLines[0]);
+        const { tag } = this.parseHeaderLine(lines[0]);
         if (tag != 'NOTES') {
             // TODO: error
         }
 
         // Get the header data out of the textual data
-        const headerData = sanitizedLines.slice(0, 5)
+        const result = lines.slice(0, 5)
             .reduce((acc, value, i) => {
                 switch (i) {
                     case 0:
@@ -250,9 +255,17 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
                 return acc;
             }, <NotesSegment>{});
 
+        // If we're not supposed to do any further parsing, bail early
+        if (!options.includeNotesSegments) {
+            return {
+                ...result,
+                measures: []
+            };
+        }
+
         // All measure line groups:
         // ex: 1001\n1001,\n1001,\n -> [['1001', '1001'], ['1001']]
-        const nonEmptySanitizedLines = toLines(sanitizedLines[5]).filter(line => line.length);
+        const nonEmptySanitizedLines = this.sanitizeNotesSegmentLines(toLines(lines[5])).filter(line => line.length);
         const measures = split(nonEmptySanitizedLines, line => line == ',');
 
         let beatNum = 0;
@@ -298,7 +311,7 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
         });
 
         return {
-            ...headerData,
+            ...result,
             measures: notes
         };
     }
@@ -314,7 +327,7 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
     }
 
     private sanitizeNotesSegmentLines(lines: string[]) {
-        return lines.map(this.stripCommentsFromLine);
+        return lines.map(this.stripCommentsFromLine).map(line => line.trim());
     }
 
     private getArrowTypeAt(position: number, rawData: string): ArrowType {

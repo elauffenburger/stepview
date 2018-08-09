@@ -42,7 +42,7 @@ export class ChartListPage {
       this.logger.debug('Preparing to get song packs...')
 
       const songPacks = await this.songPacksService.getSavedSongPacks();
-      this.logger.debug('Fetched song packs: ', songPacks);
+      this.logger.debug('Fetched song packs');
 
       this.songPacks = songPacks;
     } catch (e) {

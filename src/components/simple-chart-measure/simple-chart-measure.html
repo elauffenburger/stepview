@@ -1,0 +1,7 @@
+<div class="measure-container">
+  <div class="note" *ngFor="let note of measure.notes">
+    <div class="arrow-container" *ngFor="let direction of ['left', 'down', 'up', 'right']">
+      <ion-img [src]="getImageUrlForDirection(direction)" class="arrow" [ngClass]="{ 'hidden': note.direction == direction }"></ion-img>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,6 @@
-import { StepChart, NoteType, ArrowType, ArrowDirection, makeEmptyArrows } from 'lib/stepview-lib/models/stepchart';
-import { SmFileStepChartParser } from "lib/stepview-lib/services/stepchart-parser";
-import { toLines } from 'lib/stepview-lib/helpers';
+import { StepChart, NoteType, ArrowType, ArrowDirection, makeEmptyArrows } from '../../../../lib/stepview-lib/models/stepchart';
+import { SmFileStepChartParser } from "../../../../lib/stepview-lib/services/stepchart-parser";
+import { toLines } from '../../../../lib/stepview-lib/helpers';
 
 const fs = require('fs');
 const path = require('path');
@@ -8,7 +8,7 @@ const path = require('path');
 const file = fs.readFileSync(path.resolve(__dirname, './files/Break Free.sm'), 'utf8');
 const fileLines = toLines(file);
 
-const parser = new SmFileStepChartParser({ normalizeChart: false });
+const parser = new SmFileStepChartParser();
 
 export const CHART_FIXTURE: StepChart = makeFixture();
 
@@ -29,16 +29,10 @@ describe('can parse the header', () => {
 });
 
 it('can parse data segments', () => {
-    const notesSegments = parser.parse(file).noteSegments;
+    const notesSegments = parser.parse(file, { normalizeChart: false }).noteSegments;
 
     expect(notesSegments).toEqual(CHART_FIXTURE.noteSegments);
 });
-
-it('can parse the whole file', () => {
-    const chart = parser.parse(file);
-
-    expect(chart).toEqual(CHART_FIXTURE);
-})
 
 function makeFixture(): StepChart {
     return <StepChart>{

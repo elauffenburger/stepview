@@ -2,4 +2,9 @@ chart-difficulty-badges {
     .to-label {
         margin-right: 8px;
     }
+    .difficulty-badge.badge {
+        $margin: 0px;
+        margin-left: $margin;
+        margin-right: $margin;
+    }
 }

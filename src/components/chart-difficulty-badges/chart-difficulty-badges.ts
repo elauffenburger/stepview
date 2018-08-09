@@ -36,8 +36,4 @@ export class ChartDifficultyBadgesComponent {
 
     return levels;
   }
-
-  getColorForDifficultyClass(difficultyClass: DifficultyClass): string {
-    return getColorForDifficultyClass(difficultyClass);
-  }
 }

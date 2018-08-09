@@ -1,11 +1,17 @@
+import { StepChartParser, ParseOptions } from "../../services/stepchart-parser";
+
 export const BEATS_PER_MEASURE = 4;
 
 // Since 48 * 4 = 196, we can safely subdivide a measure by 48 lines
 export const LINES_PER_MEASURE = 48;
 
 export interface StepChart {
-    headerSegment: HeaderSegment
-    noteSegments: NotesSegment[]
+    headerSegment: HeaderSegment;
+    noteSegments: NotesSegment[];
+
+    getSourceContent(): string;
+    getParser(): StepChartParser;
+    getParseOptions(): ParseOptions
 }
 
 export interface NotesSegment {
@@ -67,10 +73,10 @@ export interface Arrow {
 }
 
 export enum ArrowDirection {
-    Left,
-    Down,
-    Up,
-    Right
+    Left = 'left',
+    Down = 'down',
+    Up = 'up',
+    Right = 'right'
 }
 
 export enum ArrowType {
