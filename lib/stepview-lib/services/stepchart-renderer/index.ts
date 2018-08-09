@@ -1,7 +1,8 @@
-import { StepChart, Arrow, Note, NoteDataArrows } from "../../models";
+import { StepChart, Arrow, Note, NoteDataArrows, NotesSegment } from "../../models";
 
 export interface StepChartRenderer {
-    render(chart: StepChart, renderArgs: StepChartRenderArgs): Promise<void>;
+    render(chart: StepChart, notes: NotesSegment, renderArgs: StepChartRenderArgs): Promise<void>;
+    requestStop(): void;
 }
 
 export interface StepChartRenderArgs {

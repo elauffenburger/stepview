@@ -1,7 +1,7 @@
 import { SmFileStepChartParser } from "../../lib/stepview-lib/services/stepchart-parser";
 
 import chalk from "chalk";
-import minimist from 'minimist';
+import * as minimist from 'minimist';
 
 const fs = require('fs');
 const path = require('path');
@@ -25,7 +25,7 @@ console.debug = function () {
 console.debug('fileName: ', fileName);
 console.debug('normalize: ', normalize);
 
-const parser = new SmFileStepChartParser({ normalizeChart: normalize });
+const parser = new SmFileStepChartParser();
 
 const file = fs.readFileSync(path.resolve(__dirname, fileName), 'utf8');
 const chart = parser.parse(file);

@@ -1,5 +1,6 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { NoteMeasureData, ArrowDirection } from '../../../lib/stepview-lib/models';
+import { Component, Input, OnChanges, SimpleChanges, AfterContentChecked } from '@angular/core';
+import { NoteMeasureData, ArrowDirection, Note, NoteType, Arrow, ArrowType } from '../../../lib/stepview-lib/models';
+import { LoadingController, Loading } from 'ionic-angular';
 
 @Component({
   selector: 'simple-chart-measure',
@@ -12,13 +13,16 @@ export class SimpleChartMeasureComponent implements OnChanges {
   constructor() { }
 
   getImageUrlForDirection(direction: ArrowDirection): string {
-    return `assets/img/arrows/${direction}`;
+    return `./assets/imgs/arrows/${direction}.png`;
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    const measure = changes["measure"];
-    if (measure) {
-      console.log('new measure value: ', measure);
-    }
+  ngOnChanges(changes: SimpleChanges) { }
+
+  isBlank(note: Note): boolean {
+    return note.type == NoteType.UNKNOWN;
+  }
+
+  isEmptyArrow(arrow: Arrow): boolean {
+    return arrow.type == ArrowType.None;
   }
 }

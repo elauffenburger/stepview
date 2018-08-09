@@ -1,7 +1,7 @@
 import { BpmSegment } from "../models";
-import _ from "lodash";
+import * as _ from "lodash";
 
-const MAX_PRECISION_DIGITS = 5;
+const MAX_PRECISION_DIGITS = 8;
 
 export function toBpmChangesLookup(segments: BpmSegment[]): { [beat: number]: number } {
     return _(segments)

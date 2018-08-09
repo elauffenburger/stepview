@@ -1,4 +1,4 @@
-import { StepChart, Note, ArrowType, Arrow, ArrowDirection, NoteType } from '../../../models';
+import { StepChart, Note, ArrowType, Arrow, ArrowDirection, NoteType, NotesSegment } from '../../../models';
 import { AbstractStepChartRenderer } from '../abstract-renderer';
 
 import _ from 'lodash';
@@ -22,59 +22,14 @@ export class ConsoleStepChartRenderer extends AbstractStepChartRenderer {
         super();
     }
 
-    async render(chart: StepChart, renderArgs: StepChartRenderArgs): Promise<void> {
-        renderArgs.speedMultiplier = renderArgs.speedMultiplier || 1;
+    protected async renderNoteToBeat(noteInfo: { note: Note, measureNum: string, noteNum: string, totalNoteNum: number }, beatInfo: { lastBeatDelta: number; bpm: number }): Promise<void> {
+        const noteStr = this.printNote(noteInfo.note);
+        const noteInfoStr = this.args.showMeasureNumbers
+            ? _.padEnd(`(${noteInfo.measureNum}, ${noteInfo.noteNum}): `, 10)
+            : '';
 
-        // We're just getting the first dance-single segment
-        const noteSegment = _.find(chart.noteSegments, s => s.type == 'dance-single');
-        if (!noteSegment) {
-            // TODO: handle failure
-            return;
-        }
+        const msg = `${noteInfoStr}${noteStr}`;
 
-        const bpmSegments = chart.headerSegment.bpmSegments;
-        if (!bpmSegments || !bpmSegments.length) {
-            // TODO: handle failure
-            return;
-        }
-
-        // A lookup we can use to see when bpm changes should occur
-        const bpmChangesLookup = toBpmChangesLookup(bpmSegments);
-
-        let lastNote: Note | undefined;
-        let bpm = 0;
-
-        const measures = noteSegment.measures;
-        for (let measureNum in measures) {
-            const measure = measures[measureNum];
-
-            for (let noteNum in measure.notes) {
-                const note = measure.notes[noteNum];
-
-                const noteString = this.printNote(note);
-                const noteInfo = this.args.showMeasureNumbers 
-                    ? _.padEnd(`(${measureNum}, ${noteNum}): `, 10) 
-                    : '';
-
-                // Calculate beat delta from last note
-                const beatDelta = lastNote ? note.beat - lastNote.beat : note.beat;
-
-                // See if we're changing bpm
-                const maybeBpmChange = bpmChangesLookup[note.beat];
-                if (maybeBpmChange) {
-                    bpm = maybeBpmChange * renderArgs.speedMultiplier;
-
-                    this.debug(`---Changing BPM: ${bpm}---`);
-                }
-
-                await this.printNoteToBeat(`${noteInfo}${noteString}`, { bpm: bpm, lastBeatDelta: beatDelta })
-
-                lastNote = note;
-            }
-        }
-    }
-
-    private async printNoteToBeat(msg: string, beatInfo: { lastBeatDelta: number; bpm: number }): Promise<void> {
         if (!this.args.realtime) {
             this.args.printFn(msg);
             return Promise.resolve();

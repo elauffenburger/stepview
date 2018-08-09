@@ -4,12 +4,18 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content padding #content>
   <ng-container *ngIf="notes">
-    <ion-list [virtualScroll]="notes.measures">
-      <div *virtualItem="let measure">
+    <ion-list>
+      <div class="simple-chart-measure-container" *ngFor="let measure of notes.measures">
         <simple-chart-measure [measure]="measure"></simple-chart-measure>
       </div>
     </ion-list>
   </ng-container>
+
+  <ion-fab bottom right>
+    <button ion-fab (click)="onClickTogglePlay()">
+      <ion-icon [name]="isPlaying ? 'pause' : 'play'"></ion-icon>
+    </button>
+  </ion-fab>
 </ion-content>

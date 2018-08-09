@@ -1,12 +1,19 @@
-import { StepChart, NoteType, ArrowType, ArrowDirection, makeEmptyArrows } from '../../../../lib/stepview-lib/models/stepchart';
+import { StepChart, NoteType, ArrowType, ArrowDirection, makeEmptyArrows, NotesSegmentType, DifficultyClass } from '../../../../lib/stepview-lib/models/stepchart';
 import { SmFileStepChartParser } from "../../../../lib/stepview-lib/services/stepchart-parser";
 import { toLines } from '../../../../lib/stepview-lib/helpers';
 
 const fs = require('fs');
 const path = require('path');
 
-const file = fs.readFileSync(path.resolve(__dirname, './files/Break Free.sm'), 'utf8');
-const fileLines = toLines(file);
+function readFile(filePath: string) {
+    const file = fs.readFileSync(path.resolve(__dirname, filePath), 'utf8');
+    const fileLines = toLines(file);
+
+    return { file, fileLines };
+}
+
+const breakFree = readFile('./files/Break Free.sm');
+const bendYourMind = readFile('./files/Bend Your Mind.sm');
 
 const parser = new SmFileStepChartParser();
 
@@ -14,7 +21,7 @@ export const CHART_FIXTURE: StepChart = makeFixture();
 
 describe('can parse the header', () => {
     it('can parse basic header info', () => {
-        const titleLine = fileLines[0];
+        const titleLine = breakFree.fileLines[0];
         expect(titleLine).toEqual('#TITLE:Break Free;');
 
         const parsedTitleLine = parser.parseHeaderLine(titleLine);
@@ -22,17 +29,77 @@ describe('can parse the header', () => {
     })
 
     it('can parse header segment', () => {
-        const headerSegment = parser.parse(file).headerSegment;
+        const headerSegment = parser.parse(breakFree.file).headerSegment;
 
         expect(headerSegment).toEqual(CHART_FIXTURE.headerSegment);
     });
 });
 
-it('can parse data segments', () => {
-    const notesSegments = parser.parse(file, { normalizeChart: false }).noteSegments;
+describe('can parse note segments', () => {
+    it('can parse note segments', () => {
+        const notesSegments = parser.parse(breakFree.file, { normalizeChart: false }).noteSegments;
 
-    expect(notesSegments).toEqual(CHART_FIXTURE.noteSegments);
-});
+        expect(notesSegments).toEqual(CHART_FIXTURE.noteSegments);
+    });
+
+    it('can parse dense note segments', () => {
+        const notes = parser.parse(bendYourMind.file, { normalizeChart: true })
+            .noteSegments
+            .find(segment => segment.type == 'dance-single' && segment.difficultyClass == 'challenge');
+
+        // Measure 43 is DEEENSE
+        const measure = notes.measures[43];
+
+        measure.notes.forEach((note, i) => {
+            if (i == 0) {
+                return;
+            }
+
+            const previousNote = measure.notes[i];
+            if (note.beat <= previousNote.beat) {
+                fail();
+            }
+        });
+    });
+})
+
+function makeDenseMeasure(): string {
+    return `
+        0100
+        0000
+        0010
+        0000
+        1000
+        0000
+        0001
+        1000
+        0001
+        0000
+        0000
+        0000
+        0100
+        0000
+        0000
+        0000
+        0000
+        0000
+        0010
+        1000
+        0010
+        0000
+        1000
+        0000
+        0001
+        0000
+        0100
+        0000
+        0001
+        0000
+        0000
+        0000
+    `
+        .trim();
+}
 
 function makeFixture(): StepChart {
     return <StepChart>{

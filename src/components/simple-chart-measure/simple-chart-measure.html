@@ -1,7 +1,14 @@
 <div class="measure-container">
   <div class="note" *ngFor="let note of measure.notes">
-    <div class="arrow-container" *ngFor="let direction of ['left', 'down', 'up', 'right']">
-      <ion-img [src]="getImageUrlForDirection(direction)" class="arrow" [ngClass]="{ 'hidden': note.direction == direction }"></ion-img>
+    <ng-container *ngIf="!isBlank(note)" class="arrow-container">
+      <div class="arrow-container" *ngFor="let direction of ['left', 'down', 'up', 'right']">
+        <img [src]="getImageUrlForDirection(direction)" class="arrow" [ngClass]="{ 'hidden': isEmptyArrow(note.data.arrows[direction]) }"
+        />
+      </div>
+    </ng-container>
+
+    <div class="measure-line" [ngClass]="{ 'blank': isBlank(note) }">
+      <hr />
     </div>
   </div>
 </div>

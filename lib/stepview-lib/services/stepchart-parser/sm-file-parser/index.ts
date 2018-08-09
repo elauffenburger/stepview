@@ -266,10 +266,20 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
         // All measure line groups:
         // ex: 1001\n1001,\n1001,\n -> [['1001', '1001'], ['1001']]
         const nonEmptySanitizedLines = this.sanitizeNotesSegmentLines(toLines(lines[5])).filter(line => line.length);
-        const measures = split(nonEmptySanitizedLines, line => line == ',');
+        const rawMeasures = split(nonEmptySanitizedLines, line => line == ',');
 
+        const measures = this.parseNotesSegmentMeasures(rawMeasures);
+
+        return {
+            ...result,
+            measures: measures
+        };
+    }
+
+    parseNotesSegmentMeasures(measures: string[][]) {
         let beatNum = 0;
-        const notes = measures.map((measureNotes, measureNum) => {
+
+        return measures.map((measureNotes, measureNum) => {
             const sanitizedMeasureNotes = measureNotes
                 .filter(line => {
                     // If this is the end of a measure, ignore the line
@@ -309,11 +319,6 @@ export class SmFileStepChartParser extends AbstractStepChartParser {
                 }, <Note[]>[])
             };
         });
-
-        return {
-            ...result,
-            measures: notes
-        };
     }
 
     private getNoteType(noteNum: number, numNotesInMeasure: number): NoteType {

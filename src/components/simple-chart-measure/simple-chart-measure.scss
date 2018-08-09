@@ -1,16 +1,42 @@
 simple-chart-measure {
     .measure-container {
         flex: 1 0 100%;
+
         .note {
+            $note-height: 15px;
+            $note-z-index: 0;
+
+            position: relative;
             display: flex;
             flex: 1 0 100%;
+            min-height: $note-height;
+            align-items: center;
+
             .arrow-container {
                 display: inline-flex;
                 flex: 1 0 25%;
+                justify-content: center;
+
                 .arrow {
+                    $arrow-height: 66px;
+
+                    position: absolute;
+                    top: -(($arrow-height - $note-height) / 2);
+                    z-index: $note-z-index + 1;
+
                     &.hidden {
                         display: none;
                     }
+                }
+            }
+
+            .measure-line {
+                position: absolute;
+                width: 100%;
+
+                > hr {
+                    border: 0;
+                    border-top: 1px solid black;
                 }
             }
         }

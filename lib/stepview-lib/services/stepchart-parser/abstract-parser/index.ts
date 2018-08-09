@@ -96,3 +96,38 @@ export abstract class AbstractStepChartParser implements StepChartParser {
         return arrow.type == ArrowType.HoldHead;
     }
 }
+
+function normalize<T>(items: T[], targetNum: number, makeItemFn: () => T): T[] {
+    const toSkipPerIndex = indicesToSkip(items.length, targetNum);
+
+    let skipAccumulator = 0.0 - toSkipPerIndex;
+    for (let i = 0; i < targetNum; i++) {
+        skipAccumulator += toSkipPerIndex;
+
+        if (skipAccumulator % 1 != 0) {
+            continue;
+        }
+
+        const toSkip = skipAccumulator;
+        skipAccumulator = 0;
+
+        items.splice(i, 0, ...range(toSkip, makeItemFn()))
+
+        i += toSkip;
+    }
+
+    return items;
+}
+
+function indicesToSkip(numItems: number, targetNum: number): number {
+    return (targetNum / numItems) - 1;
+}
+
+function range<T>(to: number, item: T): T[] {
+    const result = [];
+    for (let i = 0; i < to; i++) {
+        result.push(item);
+    }
+
+    return result;
+}
