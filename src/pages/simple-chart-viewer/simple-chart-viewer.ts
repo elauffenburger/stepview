@@ -110,14 +110,20 @@ class SimpleRenderer extends AbstractStepChartRenderer {
     const waitTime = this.calculateNoteRenderDelayInMs(beatInfo.lastBeatDelta, beatInfo.bpm);
 
     return new Promise((res) => {
+      const queueTime = performance.now();
+
       setTimeout(() => {
         try {
-          this.logger.debug('scrolling to note ', noteInfo.totalNoteNum);
-          this.logger.debug('wait time: ', waitTime);
+          const executeTime = performance.now();
+          const actualWaitTime = executeTime - queueTime;
+
+          this.logger.trace('waitTime: ', waitTime);
+          this.logger.trace('actualWaitTime: ', actualWaitTime);
 
           this.page.content.scrollTo(0, noteInfo.totalNoteNum * 15, 0);
         } catch (e) {
           // TODO: add logging
+          this.logger.error('Something went wrong while rendering chart: ', e);
         } finally {
           res();
         }
