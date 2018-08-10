@@ -16,7 +16,7 @@ const file = fs.readFileSync(path.resolve(__dirname, './files/Boogie Down.sm'), 
 const chart = parser.parse(file);
 
 it('can print a stepchart', () => {
-    renderer.render(chart, {})
+    renderer.render(chart, chart.noteSegments[0], {});
 });
 
 function printToConsole(msg: string): void {

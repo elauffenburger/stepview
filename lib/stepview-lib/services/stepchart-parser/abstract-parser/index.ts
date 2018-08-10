@@ -1,7 +1,6 @@
 import { Arrow, NoteDataArrows, StepChart, NotesSegment, LINES_PER_MEASURE, makeEmptyNote, ArrowType, Note, NoteMeasureData, NoteType, BEATS_PER_MEASURE } from "../../../models";
 import { StepChartParser, ParseOptions } from "..";
-import * as _ from "lodash";
-import { clampPrecision } from "../../../helpers";
+import { clampPrecision, distributeInto } from "../../../helpers";
 
 export type NoteArrowAccessor = (arrows: NoteDataArrows) => Arrow;
 
@@ -28,106 +27,52 @@ export abstract class AbstractStepChartParser implements StepChartParser {
                 arrows => arrows.right,
             ];
 
-            const normalizedMeasures = this.normalizeMeasuresInNoteSegment(noteSegment, noteArrowAccessors);
-            noteSegment.measures = normalizedMeasures;
+            this.normalizeMeasuresInNoteSegment(noteSegment, noteArrowAccessors);
         }
 
         return parsedChart;
     }
 
     protected normalizeMeasuresInNoteSegment(noteSegment: NotesSegment, noteArrowAccessors: NoteArrowAccessor[]) {
-        let noteNum = 0;
-        return noteSegment.measures
-            .reduce((measures, measure) => {
-                const numNotes = measure.notes.length;
-                const linesToSkipPerNote = LINES_PER_MEASURE / numNotes - 1;
+        for (let measureNum = 0; measureNum < noteSegment.measures.length; measureNum++) {
+            const measure = noteSegment.measures[measureNum];
 
-                const notes = measure.notes.reduce((acc, note) => {
-                    const noteArrows = note.data.arrows;
+            distributeInto(measure.notes, LINES_PER_MEASURE, (note, measureNoteNum) => {
+                const totalNoteNum = (measureNum * LINES_PER_MEASURE) + measureNoteNum;
+                const fillerNote: Note = {
+                    ...makeEmptyNote(),
+                    beat: clampPrecision(totalNoteNum * 4 * NoteType.FORTY_EIGHTH)
+                };
 
-                    acc.push(note);
-                    noteNum++
+                let fillerNoteArrows = fillerNote.data.arrows;
 
-                    // We need to map our "explicitly defined lines" space to the "total lines per beat" space
-                    // e.g. map 4 lines -> 48 notes
-                    for (let skippedLine = 0; skippedLine < linesToSkipPerNote; skippedLine++) {
-                        if (acc.length >= LINES_PER_MEASURE) {
-                            break;
+                // Use our note accessors to perform transforms on our filler notes
+                for (let noteArrowAccessor of noteArrowAccessors) {
+                    try {
+                        // Use the accessor to get the explicitly defined note arrows
+                        const noteArrow = noteArrowAccessor(note.data.arrows);
+
+                        // Use the accessor to get the filler note arrows
+                        const fillerNoteArrow = noteArrowAccessor(fillerNoteArrows);
+
+                        // Mark notes between HoldHead and HoldRollTail as Hold
+                        if (this.isHold(noteArrow)) {
+                            fillerNoteArrow.direction = noteArrow.direction;
+                            fillerNoteArrow.type = ArrowType.Hold;
                         }
-
-                        const fillerNote: Note = {
-                            ...makeEmptyNote(),
-                            beat: clampPrecision(noteNum * 4 * NoteType.FORTY_EIGHTH)
-                        };
-
-                        let fillerNoteArrows = fillerNote.data.arrows;
-
-                        // Use our note accessors to perform transforms on our filler notes
-                        for (let noteArrowAccessor of noteArrowAccessors) {
-
-                            // Use the accessor to get the explicitly defined note
-                            const noteArrow = noteArrowAccessor(noteArrows);
-
-                            // Use the accessor to get the filler note
-                            const fillerNoteArrow = noteArrowAccessor(fillerNoteArrows);
-
-                            // Mark notes between HoldHead and HoldRollTail as Hold
-                            if (this.isHold(noteArrow)) {
-                                fillerNoteArrow.direction = noteArrow.direction;
-                                fillerNoteArrow.type = ArrowType.Hold;
-                            }
-                        }
-
-                        acc.push(fillerNote);
-                        noteNum++;
+                    } catch (e) {
+                        let s = '';
+                        throw e;
                     }
+                }
 
-                    return acc;
-                }, <Note[]>[]);
+                return fillerNote;
+            });
 
-                return _.concat(measures, {
-                    ...measure,
-                    notes: notes
-                });
-            }, <NoteMeasureData[]>[]);
+        }
     }
 
     protected isHold(arrow: Arrow): boolean {
         return arrow.type == ArrowType.HoldHead;
     }
-}
-
-function normalize<T>(items: T[], targetNum: number, makeItemFn: () => T): T[] {
-    const toSkipPerIndex = indicesToSkip(items.length, targetNum);
-
-    let skipAccumulator = 0.0 - toSkipPerIndex;
-    for (let i = 0; i < targetNum; i++) {
-        skipAccumulator += toSkipPerIndex;
-
-        if (skipAccumulator % 1 != 0) {
-            continue;
-        }
-
-        const toSkip = skipAccumulator;
-        skipAccumulator = 0;
-
-        items.splice(i, 0, ...range(toSkip, makeItemFn()))
-
-        i += toSkip;
-    }
-
-    return items;
-}
-
-function indicesToSkip(numItems: number, targetNum: number): number {
-    return (targetNum / numItems) - 1;
-}
-
-function range<T>(to: number, item: T): T[] {
-    const result = [];
-    for (let i = 0; i < to; i++) {
-        result.push(item);
-    }
-
-    return result;
 }

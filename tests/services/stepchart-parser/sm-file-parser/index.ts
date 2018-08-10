@@ -50,16 +50,18 @@ describe('can parse note segments', () => {
         // Measure 43 is DEEENSE
         const measure = notes.measures[43];
 
-        measure.notes.forEach((note, i) => {
+        for (let i = 0; i < measure.notes.length; i++) {
+            const note = measure.notes[i];
+
             if (i == 0) {
-                return;
+                continue;
             }
 
-            const previousNote = measure.notes[i];
+            const previousNote = measure.notes[i - 1];
             if (note.beat <= previousNote.beat) {
-                fail();
+                return fail();
             }
-        });
+        }
     });
 })
 
