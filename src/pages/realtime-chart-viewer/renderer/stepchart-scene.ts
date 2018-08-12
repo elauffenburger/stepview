@@ -209,14 +209,18 @@ export class StepChartViewerScene extends Phaser.State {
     }
 
     private calculateArrowVelocity() {
-        const noteZoneVerticalHeightPx = GAME_HEIGHT - this.noteZone.position.y;
-
+        // beats per second
         const beatsPerSec = this.currentBeatsPerMinute / 60;
-        const secPerLine = 1 / (beatsPerSec * LINES_PER_BEAT);
 
-        const arrowsScrollSpeedPixelsPerSec = noteZoneVerticalHeightPx;
+        // px taken up by a measure
+        const pxPerMeasure = LINES_PER_MEASURE * NOTE_VERTICAL_SPACING;
 
-        return arrowsScrollSpeedPixelsPerSec;
+        // px we need to travel per beat
+        const pxPerBeat = pxPerMeasure / BEATS_PER_MEASURE;
+
+        const pxPerSec = pxPerBeat * beatsPerSec;
+
+        return pxPerSec;
     }
 
     drawDebugArrow(graphics: Phaser.Graphics, from: { x: number, y: number }, to: { x: number, y: number }) {
