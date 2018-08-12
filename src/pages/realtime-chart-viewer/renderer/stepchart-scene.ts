@@ -29,6 +29,7 @@ export class StepChartViewerScene extends Phaser.State {
     private beatInfo: Phaser.Text;
     private elapsedTimeInfo: Phaser.Text;
     private beatsPerMinuteInfo: Phaser.Text;
+    private arrowVelocityInfo: Phaser.Text;
 
     private notes: Note[];
     private bpmChanges: BpmChangesLookup;
@@ -58,6 +59,7 @@ export class StepChartViewerScene extends Phaser.State {
         this.notes = _.flatMap(this.notesSegment.measures, measure => measure.notes);
         this.bpmChanges = toBpmChangesLookup(this.chart.headerSegment.bpmSegments);
 
+        this.debugMode = true;
         this.inSongTimeInMs = 0;
         this.beat = 0;
         this.currentBeatsPerMinute = this.getBpmChangeForBeat(this.beat);
@@ -71,7 +73,11 @@ export class StepChartViewerScene extends Phaser.State {
         // Setup key bindings
         this.game.input.keyboard.addKey(Phaser.Keyboard.D).onDown.add(() => {
             this.debugMode = !this.debugMode;
-        }, this);
+        });
+
+        this.game.input.keyboard.addKey(Phaser.Keyboard.T).onDown.add(() => {
+            this.spawnTimedArrow();
+        });
     }
 
     update() {
@@ -97,6 +103,7 @@ export class StepChartViewerScene extends Phaser.State {
         this.beatInfo = this.add.text(50, 50, '', debugTextStyle, debugInfoGroup);
         this.elapsedTimeInfo = this.add.text(50, 100, '', debugTextStyle, debugInfoGroup);
         this.beatsPerMinuteInfo = this.add.text(50, 150, '', debugTextStyle, debugInfoGroup);
+        this.arrowVelocityInfo = this.add.text(50, 200, '', debugTextStyle, debugInfoGroup);
     }
 
     createArrowsGroup() {
@@ -115,25 +122,9 @@ export class StepChartViewerScene extends Phaser.State {
                     continue;
                 }
 
-                const { xSpacingMultiplier, arrowSpriteName } = (function (): { xSpacingMultiplier: number, arrowSpriteName: string } {
-                    switch (arrow.direction) {
-                        case ArrowDirection.Left:
-                            return { xSpacingMultiplier: 0, arrowSpriteName: ARROW_LEFT };
-                        case ArrowDirection.Down:
-                            return { xSpacingMultiplier: 1, arrowSpriteName: ARROW_DOWN };
-                        case ArrowDirection.Up:
-                            return { xSpacingMultiplier: 2, arrowSpriteName: ARROW_UP };
-                        case ArrowDirection.Right:
-                            return { xSpacingMultiplier: 3, arrowSpriteName: ARROW_RIGHT };
-                    }
+                const arrowSprite: Phaser.Sprite = this.createArrowSprite(arrow.direction, noteNumber);
 
-                    throw 'Unknown arrow direction';
-                })();
-
-                const x = ARROW_HORIZONTAL_OFFSET + xSpacingMultiplier * ARROW_HORIZONTAL_SPACING;
-                const y = NOTE_VERTICAL_SPACING * noteNumber;
-
-                const arrowSprite: Phaser.Sprite = arrowsGroup.create(x, y, arrowSpriteName);
+                arrowsGroup.add(arrowSprite);
                 arrowSprite.visible = false;
             }
 
@@ -141,6 +132,30 @@ export class StepChartViewerScene extends Phaser.State {
         }
 
         this.arrowsGroup = arrowsGroup;
+    }
+
+    private createArrowSprite(direction: ArrowDirection, noteNumber: number): Phaser.Sprite {
+        const { xSpacingMultiplier, arrowSpriteName } = (function (): {
+            xSpacingMultiplier: number;
+            arrowSpriteName: string;
+        } {
+            switch (direction) {
+                case ArrowDirection.Left:
+                    return { xSpacingMultiplier: 0, arrowSpriteName: ARROW_LEFT };
+                case ArrowDirection.Down:
+                    return { xSpacingMultiplier: 1, arrowSpriteName: ARROW_DOWN };
+                case ArrowDirection.Up:
+                    return { xSpacingMultiplier: 2, arrowSpriteName: ARROW_UP };
+                case ArrowDirection.Right:
+                    return { xSpacingMultiplier: 3, arrowSpriteName: ARROW_RIGHT };
+            }
+            throw 'Unknown arrow direction';
+        })();
+
+        const x = ARROW_HORIZONTAL_OFFSET + xSpacingMultiplier * ARROW_HORIZONTAL_SPACING;
+        const y = NOTE_VERTICAL_SPACING * noteNumber;
+
+        return this.add.sprite(x, y, arrowSpriteName);
     }
 
     updateDebugInfo() {
@@ -153,6 +168,7 @@ export class StepChartViewerScene extends Phaser.State {
         this.beatInfo.setText(`Beat: ${this.beat.toPrecision(5)}`);
         this.elapsedTimeInfo.setText(`Elapsed: ${this.inSongTimeInMs.toPrecision(10)}ms`);
         this.beatsPerMinuteInfo.setText(`BPM: ${this.currentBeatsPerMinute}`)
+        this.arrowVelocityInfo.setText(`px/s: ${this.calculateArrowVelocity()}`)
 
         // Draw debug lines for each arrow
         this.arrowsGroup.forEachAlive((arrow: Phaser.Sprite) => {
@@ -166,16 +182,13 @@ export class StepChartViewerScene extends Phaser.State {
     }
 
     updateArrows(bpmChanged: boolean) {
-        const noteZoneVerticalHeight = GAME_HEIGHT - this.noteZone.position.y;
+        const arrowsScrollSpeedPixelsPerSec = this.calculateArrowVelocity();
 
         // Draw note zone
         this.graphics
             .lineStyle(5, 0x00ff00)
             .moveTo(0, this.noteZone.position.y)
             .lineTo(GAME_WIDTH, this.noteZone.position.y);
-
-        const beatsPerSec = this.currentBeatsPerMinute / 60;
-        const arrowsScrollSpeedPixelsPerSec = (((noteZoneVerticalHeight * LINES_PER_BEAT * beatsPerSec) / LINES_PER_MEASURE) / BEATS_PER_MEASURE) * NOTE_VERTICAL_SPACING;
 
         this.arrowsGroup.forEachAlive((arrow: Phaser.Sprite) => {
             const body = <Phaser.Physics.Arcade.Body>arrow.body;
@@ -193,6 +206,17 @@ export class StepChartViewerScene extends Phaser.State {
                 arrow.kill();
             }
         }, {}, false);
+    }
+
+    private calculateArrowVelocity() {
+        const noteZoneVerticalHeightPx = GAME_HEIGHT - this.noteZone.position.y;
+
+        const beatsPerSec = this.currentBeatsPerMinute / 60;
+        const secPerLine = 1 / (beatsPerSec * LINES_PER_BEAT);
+
+        const arrowsScrollSpeedPixelsPerSec = noteZoneVerticalHeightPx;
+
+        return arrowsScrollSpeedPixelsPerSec;
     }
 
     drawDebugArrow(graphics: Phaser.Graphics, from: { x: number, y: number }, to: { x: number, y: number }) {
@@ -248,5 +272,17 @@ export class StepChartViewerScene extends Phaser.State {
 
             this.arrowsGroup.create(placementX, placementY, ARROW_LEFT);
         }
+    }
+
+    spawnTimedArrow() {
+        const arrow = this.createArrowSprite(ArrowDirection.Left, 0);
+        arrow.position.y = GAME_HEIGHT;
+
+        this.arrowsGroup.add(arrow);
+        const body: Phaser.Physics.Arcade.Body = arrow.body;
+
+        const velocity = this.calculateArrowVelocity();
+
+        body.velocity.y = -velocity;
     }
 }
