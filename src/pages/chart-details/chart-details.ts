@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import { DifficultyLevel, getDifficultyLevelsForChart, getColorForDifficultyClass } from '../../helpers';
 import { SimpleChartViewerPage, PageArgs as SimpleChartViewerPageArgs } from '../simple-chart-viewer/simple-chart-viewer';
 import { NGXLogger } from 'ngx-logger';
+import { RealtimeChartViewerPage, PageArgs as RealtimeChartViewerPageArgs } from '../realtime-chart-viewer/realtime-chart-viewer';
 
 export interface PageArgs {
   chart: StepChart
@@ -62,13 +63,13 @@ export class ChartDetailsPage {
   }
 
   onClickSelectDifficulty(type: NotesSegmentType, difficultyLevel: DifficultyLevel) {
-    const args: SimpleChartViewerPageArgs = {
+    const args: RealtimeChartViewerPageArgs = {
       chart: this.chart,
       difficulty: difficultyLevel,
       type: type
     };
 
-    this.navCtrl.push(SimpleChartViewerPage, args)
+    this.navCtrl.push(RealtimeChartViewerPage, args)
   }
 
   getDifficultyLevelsForNotesSegmentType(type: NotesSegmentType): DifficultyLevel[] {

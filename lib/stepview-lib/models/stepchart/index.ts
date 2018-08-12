@@ -1,9 +1,8 @@
 import { StepChartParser, ParseOptions } from "../../services/stepchart-parser";
 
 export const BEATS_PER_MEASURE = 4;
-
-// Since 48 * 4 = 196, we can safely subdivide a measure by 48 lines
-export const LINES_PER_MEASURE = 48;
+export const LINES_PER_BEAT = 48;
+export const LINES_PER_MEASURE = LINES_PER_BEAT * BEATS_PER_MEASURE;
 
 export interface StepChart {
     headerSegment: HeaderSegment;

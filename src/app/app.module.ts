@@ -21,6 +21,7 @@ import { ChartDetailsPageModule } from '../pages/chart-details/chart-details.mod
 import { MockSongPacksProvider } from '../providers/song-packs/mock-song-packs';
 import { SmFileStepChartParser } from '../../lib/stepview-lib/services/stepchart-parser';
 import { SimpleChartViewerPageModule } from '../pages/simple-chart-viewer/simple-chart-viewer.module';
+import { RealtimeChartViewerPageModule } from '../pages/realtime-chart-viewer/realtime-chart-viewer.module';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { SimpleChartViewerPageModule } from '../pages/simple-chart-viewer/simple
     ComponentsModule,
     ChartListPageModule,
     ChartDetailsPageModule,
-    SimpleChartViewerPageModule
+    SimpleChartViewerPageModule,
+    RealtimeChartViewerPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [

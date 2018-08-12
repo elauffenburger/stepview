@@ -3,7 +3,8 @@ const _ = require("lodash");
 
 const MAX_PRECISION_DIGITS = 8;
 
-export function toBpmChangesLookup(segments: BpmSegment[]): { [beat: number]: number } {
+export type BpmChangesLookup = { [beat: number]: number };
+export function toBpmChangesLookup(segments: BpmSegment[]): BpmChangesLookup {
     return _(segments)
         .map(segment => [segment.beat, segment.bpm])
         .fromPairs()

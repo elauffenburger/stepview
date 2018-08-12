@@ -6,7 +6,8 @@
     "experimentalDecorators": true,
     "lib": [
       "dom",
-      "es2015"
+      "es2015",
+      "scripthost"
     ],
     "module": "commonjs",
     "moduleResolution": "node",

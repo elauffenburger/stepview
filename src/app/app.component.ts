@@ -39,10 +39,10 @@ export class StepviewApp {
   }
 
   openPage(page: { component: any }) {
-    this.navToComponent(page.component);
+    this.navToComponent(page.component, null);
   }
 
-  navToComponent(component) {
-    this.nav.setRoot(component);
+  navToComponent(component, args) {
+    this.nav.setRoot(component, args);
   }
 }

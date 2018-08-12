@@ -41,7 +41,7 @@ export abstract class AbstractStepChartParser implements StepChartParser {
                 const totalNoteNum = (measureNum * LINES_PER_MEASURE) + measureNoteNum;
                 const fillerNote: Note = {
                     ...makeEmptyNote(),
-                    beat: clampPrecision(totalNoteNum * 4 * NoteType.FORTY_EIGHTH)
+                    beat: clampPrecision(totalNoteNum * 4 * (1.0 / LINES_PER_MEASURE))
                 };
 
                 let fillerNoteArrows = fillerNote.data.arrows;

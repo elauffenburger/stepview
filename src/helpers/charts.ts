@@ -1,5 +1,7 @@
 import { StepChart, DifficultyClass, NotesSegmentType } from "lib/stepview-lib/models";
 
+import * as _ from 'lodash';
+
 // A helper type for working with chart difficulty levels
 export interface DifficultyLevel {
     class: DifficultyClass,
@@ -34,4 +36,8 @@ export function getColorForDifficultyClass(difficultyClass: DifficultyClass): st
         case 'challenge':
             return 'purple'
     }
+}
+
+export function isOneOf<T>(value: T, ...values: T[]) {
+    return _.find(values, v => v == value) != null;
 }
